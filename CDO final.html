@@ -363,6 +363,20 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
   </div>
 </div>
 
+<div class="lockscreen" id="tablockscreen" style="display:none">
+  <div class="lockbox">
+    <div class="lk-logo">🔒</div>
+    <h2>Protected Section</h2>
+    <div class="lk-sub" id="tlSub">Enter password to continue</div>
+    <input type="password" id="tlPass" placeholder="Password" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <input type="password" id="tlPass2" placeholder="Confirm password" autocomplete="off" style="display:none">
+    <button id="tlBtn" onclick="tlSubmit()">Unlock</button>
+    <div class="lk-err" id="tlErr"></div>
+    <div class="lk-hint" id="tlHint"></div>
+    <button class="btn ghost sm" style="margin-top:10px" onclick="tlCancel()">Cancel</button>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="hazard"></div>
   <div class="topbar-inner">
@@ -614,16 +628,12 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       <div class="bcard">
         <div class="bicon" style="background:#12254f">🔒</div>
         <h3>Password</h3>
-        <p>Set, change, or remove the password that locks this app on open.</p>
-        <button class="btn" onclick="changePassword()">Change / set password</button>
-        <button class="btn danger" style="margin-top:8px" onclick="removePassword()">Remove password</button>
+        <p>A fixed password is required to open this app — the same on every device. To change it, edit the <code>FIXED_APP_PASSWORD</code> value in the file's code.</p>
       </div>
       <div class="bcard">
-        <div class="bicon" style="background:#5a1f8f">🔐</div>
-        <h3>Tab Password</h3>
-        <p>Set a separate password to open the Spreadsheet, Master, and Backup tabs.</p>
-        <button class="btn" onclick="changeTabPassword()">Change / set tab password</button>
-        <button class="btn danger" style="margin-top:8px" onclick="removeTabPassword()">Remove tab password</button>
+        <div class="bicon" style="background:#12254f">🔐</div>
+        <h3>Spreadsheet / Master / Backup Password</h3>
+        <p>A fixed password is required to open the Spreadsheet, Master, and Backup tabs — the same on every device this file is opened on. To change it, edit the <code>FIXED_TAB_PASSWORD</code> value in the file's code.</p>
       </div>
       <div class="bcard">
         <div class="bicon" style="background:var(--critical)">⟳</div>
@@ -1476,7 +1486,15 @@ function toast(msg,type){
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(30px)'; el.style.transition='.3s'; setTimeout(()=>el.remove(),300); },2600);
 }
+const TAB_PROTECTED=['spreadsheet','master','backup'];
 function activateTab(v){
+  if(TAB_PROTECTED.includes(v)){
+    tlRequest(v);
+    return;
+  }
+  doActivateTab(v);
+}
+function doActivateTab(v){
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('active', x.dataset.view===v));
   document.querySelectorAll('.view').forEach(sec=>sec.classList.remove('active'));
   const target=document.getElementById('view-'+v); if(target) target.classList.add('active');
@@ -1489,7 +1507,7 @@ function activateTab(v){
   window.scrollTo(0,0);
 }
 document.querySelectorAll('nav.tabs button').forEach(b=>{
-  b.addEventListener('click',()=>{ if(tabAccessGranted(b.dataset.view)) activateTab(b.dataset.view); });
+  b.addEventListener('click',()=>activateTab(b.dataset.view));
 });
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeForm(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeForm(); });
@@ -1538,93 +1556,58 @@ function sha256(ascii){
   }
   return result;
 }
-const PW_KEY='cdo_task_pw_v1', PW_SALT='CDOvertical::';
-function pwHash(p){ return sha256(unescape(encodeURIComponent(PW_SALT+p))); }
-function getPw(){ return hasStorage?localStorage.getItem(PW_KEY):null; }
-let lkMode='enter';
+/* Fixed password — same on every device/browser that opens this file. */
+const FIXED_APP_PASSWORD='123';
 function lkInit(){
   const ls=document.getElementById('lockscreen');
-  if(!hasStorage){ ls.style.display='none'; return; }   // cannot store a password without storage
-  const has=getPw();
   const sub=document.getElementById('lkSub'), p2=document.getElementById('lkPass2'), btn=document.getElementById('lkBtn'), hint=document.getElementById('lkHint');
-  if(!has){
-    lkMode='setup'; sub.textContent='Create a password to protect this app';
-    p2.style.display='block'; btn.textContent='Save & Open';
-    hint.textContent='Keep a note of it — there is no password recovery.';
-  }else{
-    lkMode='enter'; sub.textContent='Enter password to continue';
-    p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
-  }
+  sub.textContent='Enter password to continue';
+  p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
   ls.style.display='flex';
   setTimeout(()=>document.getElementById('lkPass').focus(),50);
 }
 function lkErr(m){ document.getElementById('lkErr').textContent=m||''; }
 function lkSubmit(){
   const p=document.getElementById('lkPass').value;
-  if(lkMode==='setup'){
-    const p2=document.getElementById('lkPass2').value;
-    if(p.length<3){lkErr('Use at least 3 characters');return;}
-    if(p!==p2){lkErr('Passwords do not match');return;}
-    localStorage.setItem(PW_KEY, pwHash(p)); lkUnlock();
-  }else{
-    if(pwHash(p)===getPw()){ lkUnlock(); }
-    else{ lkErr('Incorrect password'); const el=document.getElementById('lkPass'); el.value=''; el.focus(); }
-  }
+  if(p===FIXED_APP_PASSWORD){ lkUnlock(); }
+  else{ lkErr('Incorrect password'); const el=document.getElementById('lkPass'); el.value=''; el.focus(); }
 }
 function lkUnlock(){ document.getElementById('lockscreen').style.display='none'; lkErr(''); document.getElementById('lkPass').value=''; document.getElementById('lkPass2').value=''; }
 ['lkPass','lkPass2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') lkSubmit(); }); });
-function changePassword(){
-  if(!hasStorage){ alert('Storage is unavailable, so a password cannot be saved in this browser.'); return; }
-  const cur=getPw();
-  if(cur){ const old=prompt('Enter current password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current password.'); return; } }
-  const np=prompt('New password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
-  const np2=prompt('Confirm new password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
-  localStorage.setItem(PW_KEY, pwHash(np)); toast('Password updated'); alert('Password updated. It will be required next time you open the app.');
-}
-function removePassword(){
-  if(!hasStorage) return;
-  const cur=getPw();
-  if(!cur){ alert('No password is currently set.'); return; }
-  const old=prompt('Enter current password to remove it:'); if(old===null)return;
-  if(pwHash(old)!==cur){ alert('Incorrect password.'); return; }
-  if(!confirm('Remove the password? The app will open without one.')) return;
-  localStorage.removeItem(PW_KEY); toast('Password removed');
-}
 
-/* ============ Extra tab-lock (Spreadsheet / Master / Backup) ============ */
-const TAB_PW_KEY='cdo_tab_pw_v1';
-const GATED_VIEWS=['spreadsheet','master','backup'];
-let tabSessionUnlocked=false; // resets on page reload, so it's asked again next time app is opened
-function getTabPw(){ return hasStorage?localStorage.getItem(TAB_PW_KEY):null; }
-function tabAccessGranted(v){
-  if(!hasStorage) return true;
-  if(GATED_VIEWS.indexOf(v)===-1) return true;
-  if(tabSessionUnlocked) return true;
-  const cur=getTabPw();
-  if(!cur) return true; // no tab password configured yet
-  const p=prompt('This section is protected. Enter tab password:');
-  if(p===null) return false;
-  if(pwHash(p)!==cur){ alert('Incorrect password.'); return false; }
-  tabSessionUnlocked=true; // don't ask again for the rest of this session
-  return true;
+
+/* ============ Tab (Spreadsheet/Master/Backup) password lock ============ */
+/* Fixed password — same on every device/browser that opens this file, since it is
+   checked directly instead of being read from this browser's local storage. */
+const FIXED_TAB_PASSWORD='555';
+let tlPendingView=null, tlSessionUnlocked=false; // unlocked stays true only for this page load
+function tlRequest(view){
+  if(tlSessionUnlocked){ doActivateTab(view); return; }
+  tlPendingView=view;
+  const ls=document.getElementById('tablockscreen');
+  const sub=document.getElementById('tlSub'), p2=document.getElementById('tlPass2'), btn=document.getElementById('tlBtn'), hint=document.getElementById('tlHint');
+  document.getElementById('tlErr').textContent='';
+  document.getElementById('tlPass').value=''; document.getElementById('tlPass2').value='';
+  sub.textContent='Enter password to open this section';
+  p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
+  ls.style.display='flex';
+  setTimeout(()=>document.getElementById('tlPass').focus(),50);
 }
-function changeTabPassword(){
-  if(!hasStorage){ alert('Storage is unavailable, so a password cannot be saved in this browser.'); return; }
-  const cur=getTabPw();
-  if(cur){ const old=prompt('Enter current tab password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current tab password.'); return; } }
-  const np=prompt('New tab password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
-  const np2=prompt('Confirm new tab password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
-  localStorage.setItem(TAB_PW_KEY, pwHash(np)); tabSessionUnlocked=true; toast('Tab password updated'); alert('Tab password updated. It will be required next time these tabs are opened.');
+function tlCancel(){
+  document.getElementById('tablockscreen').style.display='none';
+  tlPendingView=null;
 }
-function removeTabPassword(){
-  if(!hasStorage) return;
-  const cur=getTabPw();
-  if(!cur){ alert('No tab password is currently set.'); return; }
-  const old=prompt('Enter current tab password to remove it:'); if(old===null)return;
-  if(pwHash(old)!==cur){ alert('Incorrect password.'); return; }
-  if(!confirm('Remove the tab password? Spreadsheet, Master, and Backup will open without one.')) return;
-  localStorage.removeItem(TAB_PW_KEY); toast('Tab password removed');
+function tlSubmit(){
+  const p=document.getElementById('tlPass').value;
+  if(p===FIXED_TAB_PASSWORD){ tlSessionUnlocked=true; tlUnlock(); }
+  else{ document.getElementById('tlErr').textContent='Incorrect password'; const el=document.getElementById('tlPass'); el.value=''; el.focus(); }
 }
+function tlUnlock(){
+  document.getElementById('tablockscreen').style.display='none';
+  const v=tlPendingView; tlPendingView=null;
+  if(v) doActivateTab(v);
+}
+['tlPass','tlPass2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') tlSubmit(); }); });
 
 /* ============ Init ============ */
 loadData();
