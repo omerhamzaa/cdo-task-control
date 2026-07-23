@@ -940,7 +940,7 @@ const META_KEY  = 'cdo_task_meta_v1';
 const REF_KEY   = 'cdo_task_refs_v1';
 
 /* ============ Database Sync (shared data for all users, via Google Sheet backend) ============ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxMwTueqmMFfDVpKJ7N8e9LHYKHGyKZDwpIob_lsttxf5fH0e1bsjtUda9trbcHgqq0/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbynHY6cmSWX1OoIOTMOy8nTLWf7nZEkBmA_Azl6scIFnXZSEUn4STYxTu2-U2SyzwGI/exec';
 function sheetSyncEnabled(){ return !!SHEET_API_URL && SHEET_API_URL.indexOf('PASTE_YOUR')===-1; }
 function setSyncStatus(state){
   const el=document.getElementById('sheetSyncStatus'); if(!el) return;
@@ -975,7 +975,52 @@ async function pushToSheet(){
     setSyncStatus('ok');
   }catch(e){ setSyncStatus('err'); }
 }
-function syncNow(){ pullFromSheet(false); }
+function syncNow(){ pullFromSheet(false); pullDiaryFromSheet(false); pullIssuesFromSheet(false); }
+
+async function pullDiaryFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    if(!silent) setSyncStatus('syncing');
+    const res = await fetch(SHEET_API_URL+'?type=diary', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.diary) && data.diary.length>0){
+      DIARY = data.diary;
+      if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} }
+      renderDiary();
+      setSyncStatus('ok');
+    } else if(data && Array.isArray(data.diary) && data.diary.length===0 && DIARY.length>0){
+      await pushDiaryToSheet();
+    } else { setSyncStatus('ok'); }
+  }catch(e){ setSyncStatus('err'); }
+}
+async function pushDiaryToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{
+    await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'diary', diary: DIARY}) });
+  }catch(e){}
+}
+async function pullIssuesFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    if(!silent) setSyncStatus('syncing');
+    const res = await fetch(SHEET_API_URL+'?type=issues', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.issues) && data.issues.length>0){
+      ISSUES = data.issues;
+      if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} }
+      renderIssues(); renderIssuesView();
+      setSyncStatus('ok');
+    } else if(data && Array.isArray(data.issues) && data.issues.length===0 && ISSUES.length>0){
+      await pushIssuesToSheet();
+    } else { setSyncStatus('ok'); }
+  }catch(e){ setSyncStatus('err'); }
+}
+async function pushIssuesToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{
+    await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'issues', issues: ISSUES}) });
+  }catch(e){}
+}
 
 
 function loadRefs(){
@@ -989,13 +1034,27 @@ function saveRefs(){ if(hasStorage){ try{ localStorage.setItem(REF_KEY, JSON.str
 
 const DIARY_KEY='cdo_diary_v1';
 let DIARY=[];
-function loadDiary(){ if(hasStorage){ const raw=localStorage.getItem(DIARY_KEY); if(raw){ try{ DIARY=JSON.parse(raw); return; }catch(e){} } } DIARY=[]; }
-function saveDiary(silent){ if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} } scheduleFileWrite(); if(!silent) renderDiary(); }
+function loadDiary(){
+  if(hasStorage){
+    const raw=localStorage.getItem(DIARY_KEY);
+    if(raw){ try{ DIARY=JSON.parse(raw); }catch(e){ DIARY=[]; } }
+    else { DIARY=[]; }
+  } else { DIARY=[]; }
+  if(sheetSyncEnabled()) pullDiaryFromSheet(true);
+}
+function saveDiary(silent){ if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushDiaryToSheet(); if(!silent) renderDiary(); }
 
 const ISSUES_KEY='cdo_issues_v1';
 let ISSUES=[];
-function loadIssues(){ if(hasStorage){ const raw=localStorage.getItem(ISSUES_KEY); if(raw){ try{ ISSUES=JSON.parse(raw); return; }catch(e){} } } ISSUES=[]; }
-function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderIssues(); renderIssuesView(); } }
+function loadIssues(){
+  if(hasStorage){
+    const raw=localStorage.getItem(ISSUES_KEY);
+    if(raw){ try{ ISSUES=JSON.parse(raw); }catch(e){ ISSUES=[]; } }
+    else { ISSUES=[]; }
+  } else { ISSUES=[]; }
+  if(sheetSyncEnabled()) pullIssuesFromSheet(true);
+}
+function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushIssuesToSheet(); if(!silent){ renderIssues(); renderIssuesView(); } }
 
 /* ============ State ============ */
 let TASKS = [];
@@ -2411,7 +2470,7 @@ gridNav('diaryTable');
 gridNav('issuesTable');
 lkInit();
 fileInit();
-if(sheetSyncEnabled()) setInterval(()=>pullFromSheet(true), 20000);
+if(sheetSyncEnabled()) setInterval(()=>{ pullFromSheet(true); pullDiaryFromSheet(true); pullIssuesFromSheet(true); }, 20000);
 </script>
 </body>
 </html>
