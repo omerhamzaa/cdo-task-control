@@ -218,7 +218,8 @@ tbody tr.over-row:hover{background:linear-gradient(90deg,rgba(234,88,12,.1),var(
 .ss-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .ss-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .ss-scroll{overflow:auto;max-height:calc(100vh - 250px)}
-table.ss{border-collapse:collapse;font-size:12.5px;min-width:1500px}
+table.ss{border-collapse:collapse;font-size:12.5px;min-width:1880px;table-layout:fixed}
+table.ss tbody tr:nth-child(even) td:not(.rownum):not(.delcell){background:#f8fafd}
 table.ss th{position:sticky;top:0;background:var(--ink);color:#cdd8ea;text-align:left;padding:7px 9px;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;border:1px solid #22304a;white-space:nowrap;z-index:3}
 table.ss td{border:1px solid var(--line2);padding:0;background:#fff;height:34px}
 table.ss td.rownum{position:sticky;left:0;background:#eef2f7;color:var(--muted);text-align:center;font-weight:700;font-family:var(--disp);width:40px;z-index:2;border-right:2px solid var(--line)}
@@ -274,6 +275,48 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
 .reconnect-bar .btn{margin-left:auto}
 .reconnect-bar .btn.ghost{margin-left:0}
 
+/* ---------- Diary ---------- */
+.today-panel{background:linear-gradient(160deg,#12254f,#0c1a3a);color:#fff;border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.today-date{min-width:180px}
+.today-date .tp-lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#9fb0cc;font-weight:700}
+.today-date .tp-day{font-family:var(--disp);font-size:24px;font-weight:800;line-height:1.1;margin-top:4px}
+.today-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;flex:1;min-width:280px}
+.tp-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:.14s}
+.tp-card:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+.tp-card.active{outline:2px solid var(--hazard);outline-offset:1px}
+.tp-card .v{font-family:var(--disp);font-size:28px;font-weight:800;line-height:1}
+.tp-card .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#c3cedf;margin-top:5px;font-weight:600}
+.tp-card.crit{background:rgba(220,38,38,.18);border-color:rgba(220,38,38,.4)}
+.tp-card.crit .v{color:#ff8f8f}
+.tp-card.norm{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.4)}
+.tp-card.norm .v{color:#9dc0ff}
+@media(max-width:720px){.today-cards{grid-template-columns:repeat(2,1fr)}.today-panel{gap:14px}}
+.diary-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.diary-title{font-family:var(--disp);font-size:22px;font-weight:800;color:var(--critical);text-align:center;text-transform:uppercase;letter-spacing:.5px;padding:16px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.diary-scroll{overflow:auto;max-height:calc(100vh - 300px)}
+table.diary{border-collapse:collapse;width:100%;min-width:1040px;font-size:13.5px;table-layout:fixed}
+table.diary tbody tr:nth-child(even) td:not(.d-num):not(.d-del){background:#f8fafd}
+table.diary th{background:#cfd4da;color:#1a2432;border:1px solid #b7bfc9;padding:10px 12px;font-weight:700;text-align:center;position:sticky;top:0;z-index:2}
+table.diary td{border:1px solid var(--line2);padding:0;background:#fff;text-align:center}
+table.diary td.d-num{width:52px;background:#eef2f7;font-family:var(--disp);font-weight:800;color:var(--ink)}
+table.diary td.d-del{width:42px;position:sticky;right:0;background:#fff;border-left:2px solid var(--line);z-index:1}
+table.diary th.d-del{position:sticky;right:0;top:0;z-index:4}
+table.diary tr.row-locked td.d-del{background:#f4f6fa}
+table.diary tbody tr:hover td.d-del{background:#fafcff}
+.diary td input,.diary td select{width:100%;border:0;background:transparent;padding:9px 10px;font-size:13.5px;color:var(--ink);text-align:center;font-family:var(--body)}
+.diary td .d-work input,.diary td.d-work input{text-align:left}
+.diary td select{appearance:none;-webkit-appearance:none;cursor:pointer}
+.diary td input:focus,.diary td select:focus{outline:2px solid var(--primary);outline-offset:-2px;background:#eff5ff}
+.diary tr:hover td{background:#fafcff}
+.diary tr:hover td.d-num{background:#e5ebf3}
+.diary td select.p-Critical{color:var(--critical);font-weight:700}
+.diary td select.p-High{color:var(--high);font-weight:600}
+.diary td select.s-Completed{color:var(--done);font-weight:600}
+.diary td select.s-In-Progress{color:var(--prog);font-weight:600}
+.diary .d-del button{border:0;background:transparent;color:var(--neg,#dc2626);padding:7px;border-radius:6px;line-height:0;font-size:15px;opacity:.75}
+.diary .d-del button:hover{background:#fdecec;color:var(--critical);opacity:1}
+.diary-empty{padding:26px;text-align:center;color:var(--faint)}
+
 /* ---------- Quick filter chips ---------- */
 .quickchips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px}
 .qchip{border:1px solid var(--line);background:var(--panel);border-radius:24px;padding:8px 8px 8px 15px;display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:13px;color:var(--text);box-shadow:var(--shadow);transition:.15s;cursor:pointer}
@@ -290,6 +333,39 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
 .qchip.overdue.active .qn,.qchip.critical.active .qn,.qchip.week.active .qn,.qchip.completed.active .qn{color:#fff}
 
 /* ---------- Executives ---------- */
+.exec-chooser{max-width:860px;margin:24px auto 0;text-align:center}
+.ec-head .eyebrow{font-size:11px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;font-weight:600}
+.ec-head h2{font-family:var(--disp);font-size:28px;font-weight:800;text-transform:uppercase;color:var(--ink);margin-top:4px}
+.ec-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:18px;margin-top:28px}
+.ec-btn{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--primary);border-radius:16px;padding:44px 20px;font-family:var(--disp);font-size:23px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s,border-color .18s;display:flex;flex-direction:column;align-items:center;gap:16px}
+.ec-btn:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+.ec-btn .ec-ic{font-size:44px;line-height:1}
+.ec-btn.m-project{border-top-color:var(--primary)}
+.ec-btn.m-dept{border-top-color:var(--hazard)}
+.ec-btn.m-poc{border-top-color:#0ea5e9}
+.ec-btn.m-diary{border-top-color:var(--critical)}
+.ec-btn.m-issues{border-top-color:var(--overdue)}
+.diary td select.i-Open{color:var(--critical);font-weight:700}
+.diary td select.i-In-Progress{color:var(--prog);font-weight:600}
+.diary td select.i-Resolved,.diary td select.i-Closed{color:var(--done);font-weight:600}
+.iv-table{width:100%;border-collapse:collapse;font-size:13px}
+.iv-table th{background:var(--ink);color:#cdd8ea;text-align:right;padding:9px 11px;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;white-space:nowrap}
+.iv-table th:first-child,.iv-table td:first-child{text-align:left}
+.iv-table td{border-bottom:1px solid var(--line2);padding:9px 11px;text-align:right;font-variant-numeric:tabular-nums}
+.iv-table tbody tr:hover td{background:var(--panel2)}
+.iv-table .nm{font-weight:600;color:var(--ink)}
+.iv-table .open-n{color:var(--critical);font-weight:700}
+.iv-table .done-n{color:var(--done);font-weight:600}
+.iv-table tfoot td{background:#eef2f7;border-top:2px solid var(--ink);font-family:var(--disp);font-weight:800;font-size:13px;color:var(--ink)}
+#issuesDash .kpi[data-if]{cursor:pointer;transition:transform .14s,box-shadow .14s}
+#issuesDash .kpi[data-if]:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+#issuesDash .kpi[data-if].active{outline:2px solid var(--ink);outline-offset:1px}
+.diary tr.row-locked td{background:#f4f6fa}
+.diary tr.row-locked td input,.diary tr.row-locked td select{color:#41506a;cursor:default}
+.diary tr.row-locked td input:focus{outline:none;background:transparent}
+.diary tr.row-locked td.d-num{color:var(--faint);font-size:11px}
+.diary tr.row-locked .d-del button{opacity:.45}
+@media(max-width:640px){.ec-buttons{grid-template-columns:1fr;gap:14px}.ec-btn{padding:30px 20px;flex-direction:row;justify-content:center;font-size:20px}.ec-btn .ec-ic{font-size:30px}}
 .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:var(--shadow);gap:3px}
 .seg button{border:0;background:transparent;color:var(--muted);padding:8px 17px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
 .seg button:hover{color:var(--ink)}
@@ -363,20 +439,6 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
   </div>
 </div>
 
-<div class="lockscreen" id="tablockscreen" style="display:none">
-  <div class="lockbox">
-    <div class="lk-logo">🔒</div>
-    <h2>Protected Section</h2>
-    <div class="lk-sub" id="tlSub">Enter password to continue</div>
-    <input type="password" id="tlPass" placeholder="Password" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <input type="password" id="tlPass2" placeholder="Confirm password" autocomplete="off" style="display:none">
-    <button id="tlBtn" onclick="tlSubmit()">Unlock</button>
-    <div class="lk-err" id="tlErr"></div>
-    <div class="lk-hint" id="tlHint"></div>
-    <button class="btn ghost sm" style="margin-top:10px" onclick="tlCancel()">Cancel</button>
-  </div>
-</div>
-
 <header class="topbar">
   <div class="hazard"></div>
   <div class="topbar-inner">
@@ -392,6 +454,10 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       <button class="active" data-view="executives">Executives</button>
       <button data-view="dashboard">Dashboard</button>
       <button data-view="tasks">Tasks</button>
+      <button data-view="diary">Diary</button>
+      <button data-view="diaryboard">Diary Board</button>
+      <button data-view="issues">Issues</button>
+      <button data-view="issuesview">Issues View</button>
       <button data-view="spreadsheet">Spreadsheet</button>
       <button data-view="master">Master</button>
       <button data-view="backup">Backup</button>
@@ -407,19 +473,37 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
   </div>
   <!-- EXECUTIVES -->
   <section class="view active" id="view-executives">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">Portfolio</div>
-        <h2>Executive Overview</h2>
+    <!-- First page: three buttons only -->
+    <div id="execChooser" class="exec-chooser">
+      <div class="ec-head">
+        <div class="eyebrow">Executive Overview</div>
+        <h2>Choose a view</h2>
       </div>
-      <div class="spacer"></div>
-      <div class="seg" id="execSeg">
-        <button class="active" data-mode="project" onclick="setExecMode('project')">Projects</button>
-        <button data-mode="dept" onclick="setExecMode('dept')">Departments</button>
-        <button data-mode="poc" onclick="setExecMode('poc')">POC</button>
+      <div class="ec-buttons">
+        <button class="ec-btn m-project" onclick="chooseExec('project')"><span class="ec-ic">🏢</span>Project</button>
+        <button class="ec-btn m-dept" onclick="chooseExec('dept')"><span class="ec-ic">🧩</span>Department</button>
+        <button class="ec-btn m-poc" onclick="chooseExec('poc')"><span class="ec-ic">👤</span>POC</button>
+        <button class="ec-btn m-diary" onclick="activateTab('diaryboard')"><span class="ec-ic">📔</span>COS Diary</button>
+        <button class="ec-btn m-issues" onclick="activateTab('issuesview')"><span class="ec-ic">⚠️</span>Issues</button>
       </div>
     </div>
-    <div class="exec-grid" id="execGrid"></div>
+    <!-- After choosing: tiles -->
+    <div id="execBrowse" style="display:none">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow" id="execBrowseEyebrow">Projects</div>
+          <h2 id="execBrowseTitle">Select a project</h2>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg" id="execSeg">
+          <button class="active" data-mode="project" onclick="setExecMode('project')">Projects</button>
+          <button data-mode="dept" onclick="setExecMode('dept')">Departments</button>
+          <button data-mode="poc" onclick="setExecMode('poc')">POC</button>
+        </div>
+        <button class="btn ghost sm" onclick="backToChooser()">← Categories</button>
+      </div>
+      <div class="exec-grid" id="execGrid"></div>
+    </div>
   </section>
 
   <!-- DASHBOARD -->
@@ -431,10 +515,14 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       </div>
       <div class="spacer"></div>
       <div class="dash-filter">
+        <label for="dash-project">Project</label>
+        <select id="dash-project" onchange="renderDashboard()"><option value="">All Projects</option></select>
+      </div>
+      <div class="dash-filter">
         <label for="dash-poc">Owner</label>
         <select id="dash-poc" onchange="renderDashboard()"><option value="">All Owners</option></select>
       </div>
-      <span class="view-note">Read-only · filter the summary by owner</span>
+      <span class="view-note">Read-only · filter by project &amp; owner</span>
     </div>
 
     <div class="kpis" id="kpis"></div>
@@ -485,6 +573,7 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       </div>
       <div class="spacer"></div>
       <button class="btn ghost sm" id="backExec" onclick="activateTab('executives')" style="display:none">← Executives</button>
+      <button class="btn" onclick="printTasks()">🖨 Print</button>
       <button class="btn primary" onclick="openForm()">＋ New Task</button>
     </div>
 
@@ -523,6 +612,92 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
     </div>
   </section>
 
+  <!-- DIARY -->
+  <section class="view" id="view-diary">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Daily log</div>
+        <h2>COS Diary</h2>
+      </div>
+      <div class="spacer"></div>
+      <span class="datefilter"><label>Day</label><input type="date" id="diaryFilter" onchange="renderDiary()" title="Show a single day"><button class="btn ghost sm" onclick="clearDiaryFilter()">All</button></span>
+      <button class="btn" onclick="printDiary()">🖨 Print</button>
+      <button class="btn" onclick="exportDiaryCSV()">Export</button>
+      <button class="btn primary" onclick="addDiaryRow()">＋ Add Entry</button>
+    </div>
+    <div class="diary-wrap">
+      <div class="diary-title">Data Entry — COS Diary</div>
+      <div class="diary-scroll">
+        <table class="diary" id="diaryTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIARY BOARD -->
+  <section class="view" id="view-diaryboard">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Daily log · overview</div>
+        <h2>COS Diary Board</h2>
+      </div>
+      <div class="spacer"></div>
+      <span class="datefilter"><label>Day</label><input type="date" id="boardDate" onchange="renderDiaryBoard()" title="Reference day for the briefing"><button class="btn ghost sm" onclick="boardToday()">Today</button></span>
+      <button class="btn" onclick="printDiary()">🖨 Print diary</button>
+    </div>
+    <div id="diaryDash" class="diary-dash"></div>
+  </section>
+
+  <!-- ISSUES (data entry) -->
+  <section class="view" id="view-issues">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Data entry</div>
+        <h2>Issue Register</h2>
+      </div>
+      <div class="spacer"></div>
+      <span class="view-note" id="issueLockNote" style="font-size:11.5px;color:var(--faint)">Anyone can add · past entries are locked</span>
+      <button class="btn" id="issueUnlockBtn" onclick="unlockIssueEditing()">🔓 Admin unlock</button>
+      <button class="btn" onclick="printIssues()">🖨 Print</button>
+      <button class="btn" onclick="exportIssuesCSV()">Export</button>
+      <button class="btn primary" onclick="addIssueRow()">＋ Add Issue</button>
+    </div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="is-search" placeholder="Search issues…" oninput="renderIssues()">
+      </div>
+      <select class="filter" id="is-project" onchange="renderIssues()"><option value="">All Projects</option></select>
+      <select class="filter" id="is-by" onchange="renderIssues()"><option value="">Raised By — all</option></select>
+      <select class="filter" id="is-to" onchange="renderIssues()"><option value="">Raised To — all</option></select>
+      <select class="filter" id="is-status" onchange="renderIssues()"><option value="">All Status</option></select>
+      <span class="datefilter"><label>Date</label><input type="date" id="is-from" onchange="renderIssues()" title="From"><span class="dfsep">–</span><input type="date" id="is-to-date" onchange="renderIssues()" title="To"></span>
+      <button class="btn ghost sm" onclick="clearIssueFilters()">Clear</button>
+      <button class="btn ghost sm" onclick="removeBlankIssues()">🧹 Remove blank rows</button>
+    </div>
+    <div class="diary-wrap">
+      <div class="diary-title" style="color:var(--ink)">Data Entry — Issue Register</div>
+      <div class="diary-scroll">
+        <table class="diary" id="issuesTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ISSUES VIEW -->
+  <section class="view" id="view-issuesview">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Issues · overview</div>
+        <h2>Issues View Sheet</h2>
+      </div>
+      <div class="spacer"></div>
+      <select class="filter" id="iv-project" onchange="renderIssuesView()"><option value="">All Projects</option></select>
+      <span class="datefilter"><label>Date</label><input type="date" id="iv-from" onchange="renderIssuesView()" title="From"><span class="dfsep">–</span><input type="date" id="iv-to" onchange="renderIssuesView()" title="To"></span>
+      <button class="btn ghost sm" onclick="clearIssueViewFilters()">Clear</button>
+      <button class="btn" onclick="printIssuesView()">🖨 Print summary</button>
+    </div>
+    <div id="issuesDash"></div>
+  </section>
+
   <!-- SPREADSHEET -->
   <section class="view" id="view-spreadsheet">
     <div class="section-head">
@@ -536,7 +711,7 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
     <div class="ss-toolbar">
       <button class="btn primary" onclick="addRow()">＋ Add Row</button>
       <button class="btn" onclick="renderSpreadsheet()">↻ Refresh</button>
-      <span class="view-note">Click any cell to edit · Tab moves across · changes save automatically</span>
+      <span class="view-note">Click a cell to edit · Tab / arrows / Enter to move · saves automatically</span>
     </div>
     <div class="toolbar">
       <div class="search">
@@ -595,7 +770,7 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       <div class="df-left">
         <div class="df-icon">📊</div>
         <div>
-          <h3>Google Sheet Sync</h3>
+          <h3>Database Sync</h3>
           <div class="df-status" id="sheetSyncStatus">Not connected — data is only in this browser.</div>
         </div>
       </div>
@@ -640,13 +815,17 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
       </div>
       <div class="bcard">
         <div class="bicon" style="background:#12254f">🔒</div>
-        <h3>Password</h3>
-        <p>A fixed password is required to open this app — the same on every device. To change it, edit the <code>FIXED_APP_PASSWORD</code> value in the file's code.</p>
+        <h3>Open password</h3>
+        <p>The password required to open and view the whole app.</p>
+        <button class="btn" onclick="changePassword()">Change / set password</button>
+        <button class="btn danger" style="margin-top:8px" onclick="removePassword()">Remove password</button>
       </div>
       <div class="bcard">
-        <div class="bicon" style="background:#12254f">🔐</div>
-        <h3>Spreadsheet / Master / Backup Password</h3>
-        <p>A fixed password is required to open the Spreadsheet, Master, and Backup tabs — the same on every device this file is opened on. To change it, edit the <code>FIXED_TAB_PASSWORD</code> value in the file's code.</p>
+        <div class="bicon" style="background:var(--high)">✏️</div>
+        <h3>Editor password</h3>
+        <p>Locks the <b>Spreadsheet, Master &amp; Backup</b> tabs so viewers can't edit them. Set it once; it's asked when opening those tabs.</p>
+        <button class="btn" onclick="setEditorPassword()">Set / change editor password</button>
+        <button class="btn danger" style="margin-top:8px" onclick="removeEditorPassword()">Remove editor password</button>
       </div>
       <div class="bcard">
         <div class="bicon" style="background:var(--critical)">⟳</div>
@@ -736,6 +915,20 @@ table.ss td.rownum.over{color:var(--overdue);box-shadow:inset 4px 0 0 var(--over
 <datalist id="dl-dept"></datalist>
 <datalist id="dl-heading"></datalist>
 
+<div class="overlay" id="editGate">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3 id="egTitle">🔒 Editor access</h3><button class="close" onclick="closeEditGate()">×</button></div>
+    <div style="padding:20px 22px">
+      <p id="egMsg" style="margin:0 0 14px;color:var(--muted);font-size:13.5px">Enter the editor password.</p>
+      <input type="password" id="egPass" placeholder="Editor password" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text)">
+      <input type="password" id="egPass2" placeholder="Confirm password" autocomplete="off" style="display:none;width:100%;margin-top:10px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text)">
+      <div id="egErr" style="color:var(--critical);font-size:12.5px;min-height:16px;margin-top:9px;font-weight:500"></div>
+      <div id="egSkip" style="display:none;margin-top:6px"><a href="#" onclick="skipEditorLock();return false;" style="color:var(--muted);font-size:12px;text-decoration:underline">Don't lock these tabs</a></div>
+    </div>
+    <div class="modal-foot"><div class="spacer"></div><button class="btn" onclick="closeEditGate()">Cancel</button><button class="btn primary" id="egBtn" onclick="submitEditGate()">Unlock</button></div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts"></div>
 
 <script>
@@ -746,15 +939,14 @@ const STORE_KEY = 'cdo_task_control_v1';
 const META_KEY  = 'cdo_task_meta_v1';
 const REF_KEY   = 'cdo_task_refs_v1';
 
-/* ============ Google Sheet Sync (shared data for all users) ============ */
-/* Paste your deployed Apps Script Web App URL below, between the quotes. */
+/* ============ Database Sync (shared data for all users, via Google Sheet backend) ============ */
 const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxMwTueqmMFfDVpKJ7N8e9LHYKHGyKZDwpIob_lsttxf5fH0e1bsjtUda9trbcHgqq0/exec';
 function sheetSyncEnabled(){ return !!SHEET_API_URL && SHEET_API_URL.indexOf('PASTE_YOUR')===-1; }
 function setSyncStatus(state){
   const el=document.getElementById('sheetSyncStatus'); if(!el) return;
-  if(state==='syncing') el.textContent='Syncing with Google Sheet…';
+  if(state==='syncing') el.textContent='Syncing with database…';
   else if(state==='ok') el.textContent='Synced — everyone sees the same data.';
-  else if(state==='err') el.textContent='Could not reach the Google Sheet. Showing last saved copy.';
+  else if(state==='err') el.textContent='Could not reach the database. Showing last saved copy.';
   else if(state==='off') el.textContent='Not connected — data is only in this browser.';
 }
 async function pullFromSheet(silent){
@@ -769,7 +961,6 @@ async function pullFromSheet(silent){
       buildSelects(); buildDatalists(); refreshAll();
       setSyncStatus('ok');
     } else if(data && Array.isArray(data.tasks) && data.tasks.length===0 && TASKS.length>0){
-      // Sheet is empty but we already have local tasks — seed the sheet instead of erasing local data.
       await pushToSheet();
     } else {
       setSyncStatus('ok');
@@ -788,11 +979,23 @@ function syncNow(){ pullFromSheet(false); }
 
 
 function loadRefs(){
-  if(!hasStorage) return;
-  const raw = localStorage.getItem(REF_KEY);
-  if(raw){ try{ const s=JSON.parse(raw); Object.keys(s).forEach(k=>{ if(Array.isArray(s[k])) REFS[k]=s[k]; }); }catch(e){} }
+  if(hasStorage){
+    const raw = localStorage.getItem(REF_KEY);
+    if(raw){ try{ const s=JSON.parse(raw); Object.keys(s).forEach(k=>{ if(Array.isArray(s[k])) REFS[k]=s[k]; }); }catch(e){} }
+  }
+  if(!Array.isArray(REFS.issueStatus) || !REFS.issueStatus.length) REFS.issueStatus=['Open','In Progress','Resolved','Closed'];
 }
 function saveRefs(){ if(hasStorage){ try{ localStorage.setItem(REF_KEY, JSON.stringify(REFS)); }catch(e){} } }
+
+const DIARY_KEY='cdo_diary_v1';
+let DIARY=[];
+function loadDiary(){ if(hasStorage){ const raw=localStorage.getItem(DIARY_KEY); if(raw){ try{ DIARY=JSON.parse(raw); return; }catch(e){} } } DIARY=[]; }
+function saveDiary(silent){ if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} } scheduleFileWrite(); if(!silent) renderDiary(); }
+
+const ISSUES_KEY='cdo_issues_v1';
+let ISSUES=[];
+function loadIssues(){ if(hasStorage){ const raw=localStorage.getItem(ISSUES_KEY); if(raw){ try{ ISSUES=JSON.parse(raw); return; }catch(e){} } } ISSUES=[]; }
+function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderIssues(); renderIssuesView(); } }
 
 /* ============ State ============ */
 let TASKS = [];
@@ -858,7 +1061,7 @@ function refList(key){
 
 /* ============ Rendering ============ */
 function renderDashboard(){ renderKPIs(); renderDonut(); renderProjBars(); renderPocBars(); renderPrioBars(); renderMiniLists(); }
-function refreshAll(){ renderExecutives(); renderDashboard(); render(); renderSpreadsheet(); renderMaster(); renderBackupStats(); }
+function refreshAll(){ renderExecutives(); renderDashboard(); render(); renderDiary(); renderDiaryBoard(); renderIssues(); renderIssuesView(); renderSpreadsheet(); renderMaster(); renderBackupStats(); }
 
 /* ============ Executives landing ============ */
 let execMode='project';
@@ -875,7 +1078,21 @@ function statsFor(field,value){
 function setExecMode(m){
   execMode=m;
   document.querySelectorAll('#execSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
+  const meta={project:['Projects','Select a project'],dept:['Departments','Select a department'],poc:['Owners','Select an owner']}[m]||['',''];
+  const eb=document.getElementById('execBrowseEyebrow'), ti=document.getElementById('execBrowseTitle');
+  if(eb) eb.textContent=meta[0]; if(ti) ti.textContent=meta[1];
   renderExecutives();
+}
+function showExecChooser(){
+  const c=document.getElementById('execChooser'), b=document.getElementById('execBrowse');
+  if(c) c.style.display=''; if(b) b.style.display='none';
+}
+function backToChooser(){ showExecChooser(); }
+function chooseExec(m){
+  const c=document.getElementById('execChooser'), b=document.getElementById('execBrowse');
+  if(c) c.style.display='none'; if(b) b.style.display='';
+  setExecMode(m);
+  window.scrollTo(0,0);
 }
 function renderExecutives(){
   const el=document.getElementById('execGrid'); if(!el) return;
@@ -984,7 +1201,8 @@ function barChart(el, data, color){
       <span class="bv">${val}</span></div>`).join('') : '<div class="empty">No open tasks</div>';
 }
 function dashPocVal(){ const el=document.getElementById('dash-poc'); return el?el.value:''; }
-function dashSet(){ const p=dashPocVal(); return p? TASKS.filter(t=>t.poc===p) : TASKS; }
+function dashProjVal(){ const el=document.getElementById('dash-project'); return el?el.value:''; }
+function dashSet(){ const p=dashPocVal(), pr=dashProjVal(); return TASKS.filter(t=>(!p||t.poc===p)&&(!pr||t.project===pr)); }
 function groupOpen(key,list){
   const m={};
   (list||TASKS).filter(isOpen).forEach(t=>{ const k=t[key]||'—'; m[k]=(m[k]||0)+1; });
@@ -999,7 +1217,7 @@ function renderPocBars(){
     barChart(document.getElementById('pocBars'), groupOpen('dept',dashSet()), '#0ea5e9');
   }else{
     if(title) title.textContent='Workload by Owner (open)';
-    barChart(document.getElementById('pocBars'), groupOpen('poc').slice(0,10), '#0ea5e9');
+    barChart(document.getElementById('pocBars'), groupOpen('poc',dashSet()).slice(0,10), '#0ea5e9');
   }
 }
 function renderPrioBars(){
@@ -1206,6 +1424,7 @@ function buildSelects(){
   fill('f-priority',REFS.priority,'All Priority');
   fill('f-dept',refList('department'),'All Depts');
   fill('dash-poc',refList('poc'),'All Owners');
+  fill('dash-project',refList('project'),'All Projects');
   fill('ss-status',REFS.status,'All Status');
   fill('ss-project',refList('project'),'All Projects');
   fill('ss-poc',refList('poc'),'All Owners');
@@ -1220,22 +1439,32 @@ function buildDatalists(){
   dl('dl-heading',uniq(TASKS.map(t=>t.heading)).sort());
 }
 function clearFilters(){ quickFilter=''; ['search','f-status','f-project','f-poc','f-priority','f-dept','f-from','f-to'].forEach(id=>document.getElementById(id).value=''); render(); }
+function printTasks(){
+  const list=currentFiltered();
+  const scopeBits=[document.getElementById('f-project').value,document.getElementById('f-dept').value,document.getElementById('f-poc').value,document.getElementById('f-status').value,document.getElementById('f-priority').value].filter(Boolean);
+  if(quickFilter) scopeBits.push(quickFilter);
+  const scope=scopeBits.length?(' · '+scopeBits.join(' · ')):' · All tasks';
+  const rows=list.map((t,i)=>{ const d=daysLeft(t); let dt=t.target||''; if(d!==null&&t.status!=='Completed'){ if(d<0)dt+=' ('+Math.abs(d)+'d over)'; else if(d===0)dt+=' (today)'; } return `<tr><td>${i+1}</td><td>${esc(t.project||'')}</td><td>${esc(t.heading||'')}</td><td style="text-align:left">${esc(t.action||'')}</td><td>${esc(t.poc||'')}</td><td>${esc(t.priority||'')}</td><td>${esc(dt)}</td><td>${esc(t.status||'')}</td></tr>`; }).join('');
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print','err'); return; }
+  w.document.write('<html><head><title>Task List</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1a2432}h1{color:#12254f;text-align:center;font-size:22px;margin:0 0 4px;text-transform:uppercase}.sub{text-align:center;color:#666;font-size:12px;margin-bottom:16px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px 8px;font-size:11.5px;text-align:center}th{background:#12254f;color:#fff}td:nth-child(4){max-width:280px}</style></head><body><h1>Task Control — Task List</h1><div class="sub">The Vertical · COS ~ CDO'+scope+' · '+list.length+' tasks · Printed '+new Date().toLocaleDateString()+'</div><table><thead><tr><th>#</th><th>Project</th><th>Heading</th><th>Action / Task</th><th>Owner</th><th>Priority</th><th>Target</th><th>Status</th></tr></thead><tbody>'+(rows||'<tr><td colspan=8>No tasks</td></tr>')+'</tbody></table></body></html>');
+  w.document.close(); w.focus(); setTimeout(()=>{ try{w.print();}catch(e){} },300);
+}
 
 /* ============ Spreadsheet (Excel-style grid) ============ */
 const SS_COLS=[
-  {k:'date',      label:'Date',         type:'date'},
-  {k:'project',   label:'Project',      type:'list', ref:'project'},
-  {k:'subProject',label:'Sub Project',  type:'text'},
-  {k:'dept',      label:'Dept',         type:'list', ref:'department'},
-  {k:'heading',   label:'Heading',      type:'list', ref:'heading'},
-  {k:'action',    label:'Action / Task',type:'text'},
-  {k:'type',      label:'Type',         type:'select', ref:'type'},
-  {k:'assignedBy',label:'Assigned By',  type:'list', ref:'poc'},
-  {k:'poc',       label:'Owner',        type:'list', ref:'poc'},
-  {k:'priority',  label:'Priority',     type:'select', ref:'priority'},
-  {k:'target',    label:'Target',       type:'date'},
-  {k:'status',    label:'Status',       type:'select', ref:'status'},
-  {k:'remarks',   label:'Remarks',      type:'text'},
+  {k:'date',      label:'Date',         type:'date',   w:112},
+  {k:'project',   label:'Project',      type:'list', ref:'project', w:155},
+  {k:'subProject',label:'Sub Project',  type:'text',   w:120},
+  {k:'dept',      label:'Dept',         type:'list', ref:'department', w:92},
+  {k:'heading',   label:'Heading',      type:'list', ref:'heading', w:150},
+  {k:'action',    label:'Action / Task',type:'text',   w:300},
+  {k:'type',      label:'Type',         type:'select', ref:'type', w:92},
+  {k:'assignedBy',label:'Assigned By',  type:'list', ref:'poc', w:120},
+  {k:'poc',       label:'Owner',        type:'list', ref:'poc', w:130},
+  {k:'priority',  label:'Priority',     type:'select', ref:'priority', w:108},
+  {k:'target',    label:'Target',       type:'date',   w:112},
+  {k:'status',    label:'Status',       type:'select', ref:'status', w:122},
+  {k:'remarks',   label:'Remarks',      type:'text',   w:210},
 ];
 function listFor(ref){
   if(ref==='heading') return uniq(TASKS.map(t=>t.heading)).sort();
@@ -1263,23 +1492,25 @@ function renderSpreadsheet(){
   const el=document.getElementById('ssTable'); if(!el) return;
   const list=ssFiltered();
   document.getElementById('ssCount').textContent = list.length===TASKS.length ? TASKS.length+' rows' : list.length+' of '+TASKS.length+' rows';
-  let head='<thead><tr><th class="rownum">#</th>'+SS_COLS.map(c=>`<th>${c.label}</th>`).join('')+'<th class="delcell"></th></tr></thead>';
+  const colgroup='<colgroup><col style="width:46px">'+SS_COLS.map(c=>`<col style="width:${c.w}px">`).join('')+'<col style="width:42px"></colgroup>';
+  let head=colgroup+'<thead><tr><th class="rownum">#</th>'+SS_COLS.map(c=>`<th>${c.label}</th>`).join('')+'<th class="delcell"></th></tr></thead>';
   const rows=list.map((t,i)=>{
     const over=isOverdue(t);
     let cells='';
-    SS_COLS.forEach(c=>{
+    SS_COLS.forEach((c,ci)=>{
       const val=t[c.k]??'';
+      const nav=`data-r="${i}" data-c="${ci}"`;
       if(c.type==='select'){
         const opts=listFor(c.ref).map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('');
         let cls=''; if(c.k==='priority')cls='pri-'+String(val).replace(/\s+/g,'-'); if(c.k==='status')cls='st-'+String(val).replace(/\s+/g,'-');
-        cells+=`<td><select class="${cls}" data-id="${t.id}" data-k="${c.k}">${opts}</select></td>`;
+        cells+=`<td><select class="${cls}" ${nav} data-id="${t.id}" data-k="${c.k}">${opts}</select></td>`;
       } else if(c.type==='date'){
-        cells+=`<td><input type="date" data-id="${t.id}" data-k="${c.k}" value="${esc(val)}"></td>`;
+        cells+=`<td><input type="date" ${nav} data-id="${t.id}" data-k="${c.k}" value="${esc(val)}"></td>`;
       } else if(c.type==='list'){
         const dlId = c.ref==='department' ? 'dl-dept' : 'dl-'+c.ref;
-        cells+=`<td><input list="${dlId}" data-id="${t.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"></td>`;
+        cells+=`<td><input list="${dlId}" ${nav} data-id="${t.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"></td>`;
       } else {
-        cells+=`<td><input data-id="${t.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"></td>`;
+        cells+=`<td><input ${nav} data-id="${t.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"></td>`;
       }
     });
     return `<tr><td class="rownum ${over?'over':''}">${i+1}</td>${cells}<td class="delcell"><button title="Delete row" onclick="deleteRow(${t.id})">🗑</button></td></tr>`;
@@ -1330,6 +1561,7 @@ const MASTER_LISTS=[
   {key:'priority',  title:'Priority',    note:'Dashboard reads: Critical, High, Normal'},
   {key:'status',    title:'Status',      note:'Dashboard reads: Completed, In Progress, Not Started'},
   {key:'type',      title:'Type',        note:'Task or Notes'},
+  {key:'issueStatus',title:'Issue Status',note:'Issues View reads: Open, In Progress, Resolved, Closed'},
 ];
 function renderMaster(){
   const grid=document.getElementById('masterGrid'); if(!grid) return;
@@ -1363,6 +1595,439 @@ function removeRef(key,idx){
   toast('Removed "'+val+'"');
 }
 
+/* ============ Diary (daily log) ============ */
+const DIARY_COLS=[
+  {k:'date',    label:'Date',      type:'date', w:124},
+  {k:'project', label:'Project',   type:'list', ref:'project', w:200},
+  {k:'work',    label:'Work to Do',type:'text', w:380},
+  {k:'priority',label:'Priority',  type:'select', ref:'priority', w:130},
+  {k:'status',  label:'Status',    type:'select', ref:'status', w:150},
+];
+function diaryNextId(){ return DIARY.reduce((m,d)=>Math.max(m,d.id||0),0)+1; }
+function renderDiary(){
+  const el=document.getElementById('diaryTable'); if(!el) return;
+  const fEl=document.getElementById('diaryFilter'); const filt=fEl?fEl.value:'';
+  let list=DIARY.slice();
+  if(filt) list=list.filter(d=>d.date===filt);
+  list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const colgroup='<colgroup><col style="width:56px">'+DIARY_COLS.map(c=>`<col style="width:${c.w}px">`).join('')+'<col style="width:42px"></colgroup>';
+  const head=colgroup+'<thead><tr><th class="d-num">S.#</th>'+DIARY_COLS.map(c=>`<th>${c.label}</th>`).join('')+'<th class="d-del"></th></tr></thead>';
+  if(!list.length){
+    el.innerHTML=head+`<tbody><tr><td colspan="${DIARY_COLS.length+2}"><div class="diary-empty">No diary entries${filt?' for this day':''}. Click <b>＋ Add Entry</b> to start.</div></td></tr></tbody>`;
+    return;
+  }
+  const rows=list.map((d,i)=>{
+    let cells='';
+    DIARY_COLS.forEach((c,ci)=>{
+      const val=d[c.k]??'';
+      const nav=`data-r="${i}" data-c="${ci}"`;
+      if(c.type==='select'){
+        const opts=(REFS[c.ref]||[]).map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('');
+        let cls=''; if(c.k==='priority')cls='p-'+String(val).replace(/\s+/g,'-'); if(c.k==='status')cls='s-'+String(val).replace(/\s+/g,'-');
+        cells+=`<td><select class="${cls}" ${nav} data-id="${d.id}" data-k="${c.k}">${opts}</select></td>`;
+      } else if(c.type==='date'){
+        cells+=`<td><input type="date" ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}"></td>`;
+      } else if(c.type==='list'){
+        cells+=`<td><input list="dl-project" ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}"></td>`;
+      } else {
+        cells+=`<td class="d-work"><input ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"></td>`;
+      }
+    });
+    return `<tr><td class="d-num">${i+1}</td>${cells}<td class="d-del"><button title="Delete" onclick="deleteDiaryRow(${d.id})">🗑</button></td></tr>`;
+  }).join('');
+  el.innerHTML=head+'<tbody>'+rows+'</tbody>';
+}
+function updateDiaryCell(id,k,val){ const d=DIARY.find(x=>x.id===id); if(!d)return; d[k]=val; saveDiary(true); }
+
+/* ============ ISSUES ============ */
+const ISSUE_COLS=[
+  {k:'date',    label:'Date',            type:'date', w:124},
+  {k:'issue',   label:'Issue',           type:'text', w:330},
+  {k:'raisedBy',label:'Issue Raised By (POC)', type:'list', dl:'dl-poc', w:170},
+  {k:'raisedTo',label:'Issue Raised To', type:'list', dl:'dl-poc', w:170},
+  {k:'project', label:'Project',         type:'list', dl:'dl-project', w:180},
+  {k:'status',  label:'Status',          type:'select', ref:'issueStatus', w:140},
+  {k:'remarks', label:'Remarks',         type:'text', w:220},
+];
+const ISSUE_OPEN=s=>{ const v=String(s||'Open'); return v!=='Resolved' && v!=='Closed'; };
+// A row only counts once it has real content — date/status auto-fill, so they don't make a row "real"
+const issueIsBlank=d=>!['issue','raisedBy','raisedTo','project','remarks'].some(k=>String(d[k]||'').trim());
+const realIssues=list=>list.filter(d=>!issueIsBlank(d));
+function issueNextId(){ return ISSUES.reduce((m,d)=>Math.max(m,d.id||0),0)+1; }
+function issuesFiltered(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const q=g('is-search').toLowerCase().trim();
+  const pr=g('is-project'), by=g('is-by'), to=g('is-to'), st=g('is-status'), f=g('is-from'), t=g('is-to-date');
+  return ISSUES.filter(d=>{
+    if(pr&&d.project!==pr)return false;
+    if(by&&d.raisedBy!==by)return false;
+    if(to&&d.raisedTo!==to)return false;
+    if(st&&(d.status||'Open')!==st)return false;
+    if(f&&(!d.date||d.date<f))return false;
+    if(t&&(!d.date||d.date>t))return false;
+    if(q&&![d.issue,d.raisedBy,d.raisedTo,d.project,d.remarks].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+function clearIssueFilters(){ ['is-search','is-project','is-by','is-to','is-status','is-from','is-to-date'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';}); renderIssues(); }
+function renderIssues(){
+  const el=document.getElementById('issuesTable'); if(!el) return;
+  const btn=document.getElementById('issueUnlockBtn'), note=document.getElementById('issueLockNote');
+  if(btn) btn.textContent = adminUnlocked ? '🔒 Re-lock' : '🔓 Admin unlock';
+  if(btn) btn.classList.toggle('primary', adminUnlocked);
+  if(note) note.textContent = adminUnlocked ? 'Admin mode — you can edit and delete any row' : 'Anyone can add · past entries are locked';
+  const list=issuesFiltered();
+  const colgroup='<colgroup><col style="width:56px">'+ISSUE_COLS.map(c=>`<col style="width:${c.w}px">`).join('')+'<col style="width:42px"></colgroup>';
+  const head=colgroup+'<thead><tr><th class="d-num">S.#</th>'+ISSUE_COLS.map(c=>`<th>${c.label}</th>`).join('')+'<th class="d-del"></th></tr></thead>';
+  if(!list.length){
+    el.innerHTML=head+`<tbody><tr><td colspan="${ISSUE_COLS.length+2}"><div class="diary-empty">No issues${ISSUES.length?' match your filters':' yet'}. Click <b>＋ Add Issue</b> to start.</div></td></tr></tbody>`;
+    return;
+  }
+  const rows=list.map((d,i)=>{
+    const locked=issueRowLocked(d);
+    let cells='';
+    ISSUE_COLS.forEach((c,ci)=>{
+      const val=d[c.k]??'';
+      const nav=`data-r="${i}" data-c="${ci}"`;
+      const ro=locked?' readonly':'', dis=locked?' disabled':'';
+      if(c.type==='select'){
+        const cur=val||(REFS[c.ref]||['Open'])[0];
+        const opts=(REFS[c.ref]||[]).map(o=>`<option ${o===cur?'selected':''}>${esc(o)}</option>`).join('');
+        cells+=`<td><select class="i-${String(cur).replace(/\s+/g,'-')}" ${nav} data-id="${d.id}" data-k="${c.k}"${dis}>${opts}</select></td>`;
+      } else if(c.type==='date'){
+        cells+=`<td><input type="date" ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}"${dis}></td>`;
+      } else if(c.type==='list'){
+        cells+=`<td><input list="${c.dl}" ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"${ro}></td>`;
+      } else {
+        cells+=`<td class="d-work"><input ${nav} data-id="${d.id}" data-k="${c.k}" value="${esc(val)}" title="${esc(val)}"${ro}></td>`;
+      }
+    });
+    return `<tr class="${locked?'row-locked':''}"><td class="d-num">${locked?'🔒':''}${i+1}</td>${cells}<td class="d-del"><button title="${locked?'Locked — admin only':'Delete'}" onclick="deleteIssueRow(${d.id})">🗑</button></td></tr>`;
+  }).join('');
+  el.innerHTML=head+'<tbody>'+rows+'</tbody>';
+}
+// Rows saved in an earlier session are locked; rows added in this session stay editable
+const sessionIssueRows=new Set();
+function issueRowLocked(d){ return !adminUnlocked && !sessionIssueRows.has(d.id) && !issueIsBlank(d); }
+function unlockIssueEditing(){
+  if(adminUnlocked){ adminUnlocked=false; renderIssues(); toast('Editing locked again'); return; }
+  if(!requireAdmin('unlock editing of previous entries')) return;
+  renderIssues(); toast('Editing unlocked for this session');
+}
+function updateIssueCell(id,k,val){ const d=ISSUES.find(x=>x.id===id); if(!d)return; if(issueRowLocked(d))return; d[k]=val; saveIssues(true); }
+(function(){
+  const tbl=document.getElementById('issuesTable'); if(!tbl) return;
+  tbl.addEventListener('change',e=>{ const el=e.target; if(el.dataset&&el.dataset.id){ updateIssueCell(+el.dataset.id, el.dataset.k, el.value); if(el.tagName==='SELECT') el.className='i-'+el.value.replace(/\s+/g,'-'); } });
+  tbl.addEventListener('input',e=>{ if(e.target.tagName==='INPUT'&&e.target.type!=='date'&&e.target.dataset.id){ updateIssueCell(+e.target.dataset.id,e.target.dataset.k,e.target.value); } });
+})();
+function addIssueRow(){
+  const d={id:issueNextId(),date:todayStr(),issue:'',raisedBy:'',raisedTo:'',project:'',status:(REFS.issueStatus||['Open'])[0],remarks:''};
+  ISSUES.push(d); sessionIssueRows.add(d.id);
+  ['is-search','is-project','is-by','is-to','is-status','is-from','is-to-date'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  saveIssues();
+  const sc=document.querySelector('#view-issues .diary-scroll'); if(sc) sc.scrollTop=0;
+  setTimeout(()=>{ const inp=document.querySelector(`#issuesTable input[data-id="${d.id}"][data-k="issue"]`); if(inp) inp.focus(); },60);
+  toast('Issue added');
+}
+let adminUnlocked=false;
+function requireAdmin(action){
+  if(adminUnlocked) return true;
+  let cur=(typeof getEditPw==='function')?getEditPw():null;
+  if(!cur){
+    // No admin password yet — let the owner create one right here, then proceed
+    if(!confirm('No admin password is set yet.\n\nSet one now? It will be required to edit or delete previous entries.')) return false;
+    if(!hasStorage){ alert('Storage is unavailable in this browser, so a password cannot be saved.'); return false; }
+    const np=prompt('Create admin password (at least 3 characters):'); if(np===null) return false;
+    if(np.length<3){ alert('Too short — use at least 3 characters.'); return false; }
+    const np2=prompt('Confirm admin password:'); if(np2===null) return false;
+    if(np!==np2){ alert('Passwords do not match.'); return false; }
+    localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY);
+    adminUnlocked=true; toast('Admin password set');
+    return true;
+  }
+  const p=prompt('Admin password required to '+(action||'do this')+':');
+  if(p===null) return false;
+  if(pwHash(p)!==cur){ alert('Incorrect admin password.'); return false; }
+  adminUnlocked=true;
+  return true;
+}
+function deleteIssueRow(id){
+  const d=ISSUES.find(x=>x.id===id);
+  // a brand-new blank row can always be removed by whoever just added it
+  const isBlank=d?issueIsBlank(d):false;
+  if(!isBlank && !requireAdmin('delete this issue')) return;
+  if(!confirm('Delete this issue?'))return;
+  ISSUES=ISSUES.filter(x=>x.id!==id); saveIssues(); toast('Issue deleted');
+}
+function removeBlankIssues(){
+  const blanks=ISSUES.filter(issueIsBlank);
+  if(!blanks.length){ toast('No blank rows to remove'); return; }
+  if(!confirm(`Remove ${blanks.length} blank row${blanks.length>1?'s':''}?`)) return;
+  ISSUES=ISSUES.filter(d=>!issueIsBlank(d)); saveIssues();
+  toast(`Removed ${blanks.length} blank row${blanks.length>1?'s':''}`);
+}
+function buildIssueSelects(){
+  const fill=(id,list,label)=>{ const el=document.getElementById(id); if(!el)return; const keep=el.value; el.innerHTML=`<option value="">${label}</option>`+list.map(v=>`<option>${esc(v)}</option>`).join(''); el.value=keep; };
+  const people=uniq([...(REFS.poc||[]),...ISSUES.map(i=>i.raisedBy),...ISSUES.map(i=>i.raisedTo)]);
+  fill('is-project',refList('project'),'All Projects');
+  fill('is-by',people,'Raised By — all');
+  fill('is-to',people,'Raised To — all');
+  fill('is-status',REFS.issueStatus||[],'All Status');
+  fill('iv-project',refList('project'),'All Projects');
+}
+/* ---- Issues View sheet ---- */
+function issuesViewList(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const pr=g('iv-project'), f=g('iv-from'), t=g('iv-to');
+  return realIssues(ISSUES).filter(d=>{
+    if(pr&&d.project!==pr)return false;
+    if(f&&(!d.date||d.date<f))return false;
+    if(t&&(!d.date||d.date>t))return false;
+    return true;
+  });
+}
+function clearIssueViewFilters(){ ['iv-project','iv-from','iv-to'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';}); renderIssuesView(); }
+let issueViewFilter='';
+function issueDetailList(list,key){
+  let out;
+  if(key==='open') out=list.filter(d=>ISSUE_OPEN(d.status));
+  else if(key==='prog') out=list.filter(d=>String(d.status)==='In Progress');
+  else if(key==='res') out=list.filter(d=>String(d.status)==='Resolved');
+  else if(key==='closed') out=list.filter(d=>String(d.status)==='Closed');
+  else out=list.slice();
+  return out.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+function setIssueViewFilter(k){ issueViewFilter=(issueViewFilter===k?'':k); renderIssuesView(); }
+(function(){ const host=document.getElementById('issuesDash'); if(host) host.addEventListener('click',e=>{ const c=e.target.closest('[data-if]'); if(c) setIssueViewFilter(c.dataset.if); }); })();
+function issueGroup(list,key){
+  const m={}; list.forEach(d=>{ const k=(d[key]||'—'); if(!m[k])m[k]={total:0,open:0,closed:0}; m[k].total++; if(ISSUE_OPEN(d.status))m[k].open++; else m[k].closed++; });
+  return Object.entries(m).sort((a,b)=>b[1].open-a[1].open||b[1].total-a[1].total);
+}
+function issueTable(title,rows,label){
+  if(!rows.length) return `<div class="panel"><h3>${title}</h3><div class="empty">No data</div></div>`;
+  const tot=rows.reduce((s,[,v])=>({total:s.total+v.total,open:s.open+v.open,closed:s.closed+v.closed}),{total:0,open:0,closed:0});
+  const body=rows.map(([k,v])=>`<tr><td class="nm">${esc(k)}</td><td>${v.total}</td><td class="open-n">${v.open}</td><td class="done-n">${v.closed}</td></tr>`).join('');
+  return `<div class="panel"><h3>${title}</h3><table class="iv-table"><thead><tr><th>${label}</th><th>Total</th><th>Open</th><th>Closed</th></tr></thead><tbody>${body}</tbody>
+    <tfoot><tr><td>Total (${rows.length})</td><td>${tot.total}</td><td>${tot.open}</td><td>${tot.closed}</td></tr></tfoot></table></div>`;
+}
+function renderIssuesView(){
+  const el=document.getElementById('issuesDash'); if(!el) return;
+  buildIssueSelects();
+  const list=issuesViewList();
+  const total=list.length;
+  const open=list.filter(d=>ISSUE_OPEN(d.status)).length;
+  const prog=list.filter(d=>String(d.status)==='In Progress').length;
+  const res=list.filter(d=>String(d.status)==='Resolved').length;
+  const closed=list.filter(d=>String(d.status)==='Closed').length;
+  const projects=uniq(list.map(d=>d.project)).length;
+  const A=k=>issueViewFilter===k?' active':'';
+  const kpis=`<div class="kpis">
+      <div class="kpi${A('all')}" data-if="all"><div class="num">${total}</div><div class="lbl">Total Issues</div></div>
+      <div class="kpi k-over${A('open')}" data-if="open"><div class="num">${open}</div><div class="lbl">Open</div></div>
+      <div class="kpi k-prog${A('prog')}" data-if="prog"><div class="num">${prog}</div><div class="lbl">In Progress</div></div>
+      <div class="kpi k-done${A('res')}" data-if="res"><div class="num">${res}</div><div class="lbl">Resolved</div></div>
+      <div class="kpi k-done${A('closed')}" data-if="closed"><div class="num">${closed}</div><div class="lbl">Closed</div></div>
+      <div class="kpi k-not"><div class="num">${projects}</div><div class="lbl">Projects Affected</div></div>
+    </div>`;
+  if(!total){ el.innerHTML=kpis+'<div class="panel"><div class="empty">No issues recorded yet. Add them on the <b>Issues</b> tab and this sheet will summarise them.</div></div>'; return; }
+  // detail list when a KPI card is selected
+  let detail='';
+  if(issueViewFilter){
+    const dl=issueDetailList(list,issueViewFilter);
+    const titles={all:'All issues',open:'Open issues',prog:'In Progress',res:'Resolved issues',closed:'Closed issues'};
+    const rows=dl.map(d=>`<tr><td>${esc(d.date||'')}</td><td class="nm" style="text-align:left">${esc(d.issue||'—')}</td><td style="text-align:left">${esc(d.project||'—')}</td><td style="text-align:left">${esc(d.raisedBy||'—')}</td><td style="text-align:left">${esc(d.raisedTo||'—')}</td><td><span class="pill ${ISSUE_OPEN(d.status)?'p-Critical':'s-done'}">${esc(d.status||'Open')}</span></td><td style="text-align:left">${esc(d.remarks||'')}</td></tr>`).join('');
+    detail=`<div class="panel"><h3>${titles[issueViewFilter]||'Issues'} <span class="count">${dl.length} · <a href="#" onclick="setIssueViewFilter('');return false;" style="color:var(--primary);font-weight:600">clear</a></span></h3>
+      <div class="tscroll" style="max-height:340px"><table class="iv-table"><thead><tr><th>Date</th><th style="text-align:left">Issue</th><th style="text-align:left">Project</th><th style="text-align:left">Raised By</th><th style="text-align:left">Raised To</th><th>Status</th><th style="text-align:left">Remarks</th></tr></thead><tbody>${rows||'<tr><td colspan="7"><div class="empty">None</div></td></tr>'}</tbody></table></div></div>`;
+  }
+  const recent=list.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8)
+    .map(d=>`<tr><td>${esc(d.date||'')}</td><td class="nm" style="text-align:left">${esc(d.issue||'—')}</td><td style="text-align:left">${esc(d.project||'—')}</td><td style="text-align:left">${esc(d.raisedBy||'—')}</td><td style="text-align:left">${esc(d.raisedTo||'—')}</td><td><span class="pill ${ISSUE_OPEN(d.status)?'p-Critical':'s-done'}">${esc(d.status||'Open')}</span></td></tr>`).join('');
+  el.innerHTML=kpis+detail+`
+    <div class="grid2">
+      ${issueTable('Project-wise Issues',issueGroup(list,'project'),'Project')}
+      ${issueTable('Issues by Status',issueGroup(list,'status'),'Status')}
+    </div>
+    <div class="grid2">
+      ${issueTable('Raised By',issueGroup(list,'raisedBy'),'Raised By')}
+      ${issueTable('Raised To',issueGroup(list,'raisedTo'),'Raised To')}
+    </div>
+    <div class="panel"><h3>Recent issues <span class="count">${Math.min(8,total)} of ${total}</span></h3>
+      <div class="tscroll" style="max-height:330px"><table class="iv-table"><thead><tr><th>Date</th><th style="text-align:left">Issue</th><th style="text-align:left">Project</th><th style="text-align:left">Raised By</th><th style="text-align:left">Raised To</th><th>Status</th></tr></thead><tbody>${recent}</tbody></table></div></div>`;
+}
+/* ---- Issues print / export ---- */
+function printIssues(){
+  const list=realIssues(issuesFiltered());
+  const rows=list.map((d,i)=>`<tr><td>${i+1}</td><td>${esc(d.date||'')}</td><td style="text-align:left">${esc(d.issue||'')}</td><td>${esc(d.raisedBy||'')}</td><td>${esc(d.raisedTo||'')}</td><td>${esc(d.project||'')}</td><td>${esc(d.status||'')}</td><td style="text-align:left">${esc(d.remarks||'')}</td></tr>`).join('');
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print','err'); return; }
+  w.document.write('<html><head><title>Issue Register</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1a2432}h1{color:#12254f;text-align:center;font-size:21px;margin:0 0 4px;text-transform:uppercase}.sub{text-align:center;color:#666;font-size:11px;margin-bottom:16px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px 8px;font-size:11px;text-align:center}th{background:#12254f;color:#fff}</style></head><body><h1>Issue Register</h1><div class="sub">The Vertical · COS ~ CDO · '+list.length+' issues · Printed '+new Date().toLocaleDateString()+'</div><table><thead><tr><th>S.#</th><th>Date</th><th>Issue</th><th>Raised By</th><th>Raised To</th><th>Project</th><th>Status</th><th>Remarks</th></tr></thead><tbody>'+(rows||'<tr><td colspan=8>No issues</td></tr>')+'</tbody></table></body></html>');
+  w.document.close(); w.focus(); setTimeout(()=>{try{w.print();}catch(e){}},300);
+}
+function printIssuesView(){
+  const list=issuesViewList();
+  const total=list.length, open=list.filter(d=>ISSUE_OPEN(d.status)).length;
+  const sec=(title,label,rows)=>{ if(!rows.length)return ''; const t=rows.reduce((s,[,v])=>({total:s.total+v.total,open:s.open+v.open,closed:s.closed+v.closed}),{total:0,open:0,closed:0});
+    return '<h2>'+title+'</h2><table><thead><tr><th style="text-align:left">'+label+'</th><th>Total</th><th>Open</th><th>Closed</th></tr></thead><tbody>'
+      +rows.map(([k,v])=>`<tr><td style="text-align:left">${esc(k)}</td><td>${v.total}</td><td>${v.open}</td><td>${v.closed}</td></tr>`).join('')
+      +`</tbody><tfoot><tr><td style="text-align:left">TOTAL</td><td>${t.total}</td><td>${t.open}</td><td>${t.closed}</td></tr></tfoot></table>`; };
+  const body=sec('Project-wise Issues','Project',issueGroup(list,'project'))
+    +sec('Issues by Status','Status',issueGroup(list,'status'))
+    +sec('Raised By','Raised By',issueGroup(list,'raisedBy'))
+    +sec('Raised To','Raised To',issueGroup(list,'raisedTo'));
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print','err'); return; }
+  w.document.write('<html><head><title>Issues Summary</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1a2432}h1{color:#12254f;text-align:center;font-size:21px;margin:0 0 4px;text-transform:uppercase}.sub{text-align:center;color:#666;font-size:11px;margin-bottom:18px}h2{font-size:13px;margin:18px 0 6px;color:#12254f;border-bottom:2px solid #12254f;padding-bottom:3px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px 8px;font-size:11px;text-align:right}th{background:#12254f;color:#fff}tfoot td{font-weight:bold;background:#eef2f7}</style></head><body><h1>Issues Summary</h1><div class="sub">The Vertical · COS ~ CDO · '+total+' issues ('+open+' open) · Printed '+new Date().toLocaleDateString()+'</div>'+(body||'<p>No issues.</p>')+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(()=>{try{w.print();}catch(e){}},300);
+}
+function exportIssuesCSV(){
+  const cols=[['date','Date'],['issue','Issue'],['raisedBy','Issue Raised By (POC)'],['raisedTo','Issue Raised To'],['project','Project'],['status','Status'],['remarks','Remarks']];
+  const q=s=>'"'+(s??'').toString().replace(/"/g,'""')+'"';
+  let csv=q('S.#')+','+cols.map(c=>q(c[1])).join(',')+'\r\n';
+  realIssues(issuesFiltered()).forEach((d,i)=>{ csv+=q(i+1)+','+cols.map(c=>q(d[c[0]])).join(',')+'\r\n'; });
+  download(`Issue-Register_${stamp()}.csv`, '\ufeff'+csv, 'text/csv;charset=utf-8');
+  toast('Issues exported');
+}
+function renderDiaryDash(list){
+  const el=document.getElementById('diaryDash'); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="panel"><div class="empty">No diary entries yet. Add entries on the Diary tab and they\'ll summarise here.</div></div>'; return; }
+  const total=list.length;
+  const done=list.filter(d=>d.status==='Completed').length;
+  const prog=list.filter(d=>d.status==='In Progress').length;
+  const not =list.filter(d=>d.status==='Not Started').length;
+  const crit=list.filter(d=>d.priority==='Critical').length;
+  const pct=total?Math.round(done/total*100):0;
+  const grp=key=>{ const m={}; list.forEach(d=>{ const k=d[key]||'—'; m[k]=(m[k]||0)+1; }); return Object.entries(m).sort((a,b)=>b[1]-a[1]); };
+  const barRows=(data,color)=>{ const max=Math.max(1,...data.map(d=>d[1])); return data.length? data.map(([l,v])=>`<div class="bar-row"><span class="bl" title="${esc(l)}">${esc(l)}</span><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%;background:${color}"></div></div><span class="bv">${v}</span></div>`).join('') : '<div class="empty">None</div>'; };
+  const statusRows=[['Completed',done,'#16a34a'],['In Progress',prog,'#d97706'],['Not Started',not,'#64748b']].filter(x=>x[1]).map(([l,v,c])=>`<div class="bar-row"><span class="bl">${l}</span><div class="bar-track"><div class="bar-fill" style="width:${v/total*100}%;background:${c}"></div></div><span class="bv">${v}</span></div>`).join('');
+  const prioColors={'Critical':'#dc2626','High':'#c2410c','Normal':'#2563eb'};
+  const prioOrder={'Critical':0,'High':1,'Normal':2};
+  const prioData=grp('priority').sort((a,b)=>(prioOrder[a[0]]??9)-(prioOrder[b[0]]??9));
+  const prioMax=Math.max(1,...prioData.map(d=>d[1]));
+  const prioRows=prioData.map(([l,v])=>`<div class="bar-row"><span class="bl">${esc(l)}</span><div class="bar-track"><div class="bar-fill" style="width:${v/prioMax*100}%;background:${prioColors[l]||'#2563eb'}"></div></div><span class="bv">${v}</span></div>`).join('');
+  const recent=list.slice(0,6).map(d=>`<div class="mini"><div><div class="m-title">${esc(d.work||'—')}</div><div class="m-meta">${esc(d.date||'')} · ${esc(d.project||'—')} · ${esc(d.status||'')}</div></div></div>`).join('');
+  // ---- Today / selected-day briefing ----
+  const ref=boardRefDate();
+  const refIsToday = ref===todayStr();
+  const isPend=d=>d.status!=='Completed';
+  const dayCount=list.filter(d=>d.date===ref).length;
+  const prevInc=list.filter(d=>d.date && d.date<ref && isPend(d)).length;
+  const totalPend=list.filter(isPend).length;
+  const critPend=list.filter(d=>isPend(d)&&d.priority==='Critical').length;
+  const normPend=list.filter(d=>isPend(d)&&d.priority==='Normal').length;
+  const refLabel=new Date(ref+'T00:00').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const A=k=>diaryBoardFilter===k?' active':'';
+  const todayPanel=`
+    <div class="today-panel">
+      <div class="today-date"><div class="tp-lbl">Date · ${refIsToday?'Today':'Selected'}</div><div class="tp-day">${refLabel}</div></div>
+      <div class="today-cards">
+        <div class="tp-card${A('today')}" data-df="today"><span class="v">${dayCount}</span><span class="k">${refIsToday?"Today's":"Day's"} Tasks</span></div>
+        <div class="tp-card${A('prev')}" data-df="prev"><span class="v">${prevInc}</span><span class="k">Previous Incomplete</span></div>
+        <div class="tp-card${A('pending')}" data-df="pending"><span class="v">${totalPend}</span><span class="k">Total Pending</span></div>
+        <div class="tp-card crit${A('critical')}" data-df="critical"><span class="v">${critPend}</span><span class="k">Critical</span></div>
+        <div class="tp-card norm${A('normal')}" data-df="normal"><span class="v">${normPend}</span><span class="k">Normal</span></div>
+      </div>
+    </div>`;
+  // ---- Detail list for the selected card ----
+  let detail='';
+  if(diaryBoardFilter){
+    const dl=diaryDetailList(list,ref,diaryBoardFilter);
+    const titles={today:(refIsToday?"Today's tasks":"Tasks on "+ref),prev:'Previous incomplete tasks',pending:'All pending tasks',critical:'Critical (pending)',normal:'Normal (pending)'};
+    const rows=dl.map(d=>`<tr><td>${esc(d.date||'')}</td><td style="text-align:left">${esc(d.work||'—')}</td><td>${esc(d.project||'—')}</td><td><span class="pill p-${esc(d.priority||'Normal')}">${esc(d.priority||'')}</span></td><td><span class="pill ${d.status==='Completed'?'s-done':d.status==='In Progress'?'s-prog':'s-not'}">${esc(d.status||'')}</span></td></tr>`).join('');
+    detail=`<div class="panel" id="boardDetail"><h3>${titles[diaryBoardFilter]||'Entries'} <span class="count">${dl.length} entries · <a href="#" onclick="setDiaryBoardFilter('');return false;" style="color:var(--primary);font-weight:600">clear</a></span></h3>
+      <div class="tscroll" style="max-height:320px"><table><thead><tr><th>Date</th><th style="text-align:left">Work to Do</th><th>Project</th><th>Priority</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="5"><div class="empty">None</div></td></tr>'}</tbody></table></div></div>`;
+  }
+  el.innerHTML=todayPanel+detail+`
+    <div class="kpis">
+      <div class="kpi"><div class="num">${total}</div><div class="lbl">Entries</div></div>
+      <div class="kpi k-done"><div class="num">${done}</div><div class="lbl">Completed</div></div>
+      <div class="kpi k-prog"><div class="num">${prog}</div><div class="lbl">In Progress</div></div>
+      <div class="kpi k-not"><div class="num">${not}</div><div class="lbl">Not Started</div></div>
+      <div class="kpi k-crit"><div class="num">${crit}</div><div class="lbl">Critical</div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>By Status <span class="count">${pct}% complete</span></h3><div class="bars">${statusRows||'<div class="empty">None</div>'}</div></div>
+      <div class="panel"><h3>By Project</h3><div class="bars">${barRows(grp('project'),'#2563eb')}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>By Priority</h3><div class="bars">${prioRows||'<div class="empty">None</div>'}</div></div>
+      <div class="panel"><h3>Recent entries</h3><div class="minilist">${recent}</div></div>
+    </div>`;
+}
+function diaryDetailList(list,ref,key){
+  const isPend=d=>d.status!=='Completed';
+  let out;
+  if(key==='today') out=list.filter(d=>d.date===ref);
+  else if(key==='prev') out=list.filter(d=>d.date && d.date<ref && isPend(d));
+  else if(key==='pending') out=list.filter(isPend);
+  else if(key==='critical') out=list.filter(d=>isPend(d)&&d.priority==='Critical');
+  else if(key==='normal') out=list.filter(d=>isPend(d)&&d.priority==='Normal');
+  else out=list.slice();
+  return out.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+function setDiaryBoardFilter(k){ diaryBoardFilter=(diaryBoardFilter===k?'':k); renderDiaryBoard(); }
+// delegated clicks on the Today cards
+(function(){ const host=document.getElementById('diaryDash'); if(host) host.addEventListener('click',e=>{ const c=e.target.closest('[data-df]'); if(c) setDiaryBoardFilter(c.dataset.df); }); })();
+(function(){
+  const tbl=document.getElementById('diaryTable'); if(!tbl) return;
+  tbl.addEventListener('change',e=>{ const el=e.target; if(el.dataset&&el.dataset.id){ updateDiaryCell(+el.dataset.id, el.dataset.k, el.value); if(el.tagName==='SELECT'){ if(el.dataset.k==='priority')el.className='p-'+el.value.replace(/\s+/g,'-'); if(el.dataset.k==='status')el.className='s-'+el.value.replace(/\s+/g,'-'); } } });
+  tbl.addEventListener('input',e=>{ if(e.target.tagName==='INPUT'&&e.target.type!=='date'&&e.target.dataset.id){ updateDiaryCell(+e.target.dataset.id,e.target.dataset.k,e.target.value); } });
+})();
+let diaryBoardFilter='';
+function boardRefDate(){ const el=document.getElementById('boardDate'); return (el&&el.value)?el.value:todayStr(); }
+function boardToday(){ const el=document.getElementById('boardDate'); if(el)el.value=todayStr(); renderDiaryBoard(); }
+function renderDiaryBoard(){
+  const bd=document.getElementById('boardDate'); if(bd && !bd.value) bd.value=todayStr();
+  const diaryIsBlank=d=>!['project','work','remarks'].some(k=>String(d[k]||'').trim());
+  const list=DIARY.filter(d=>!diaryIsBlank(d)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  renderDiaryDash(list);
+}
+// Excel-style keyboard navigation for a grid table (Enter / Arrow Up-Down move rows)
+function gridNav(tableId){
+  const tbl=document.getElementById(tableId); if(!tbl || tbl._navBound) return; tbl._navBound=true;
+  tbl.addEventListener('keydown',e=>{
+    const el=e.target; if(!el.dataset || el.dataset.r===undefined) return;
+    const r=+el.dataset.r, c=+el.dataset.c, isSel=el.tagName==='SELECT';
+    const go=(nr,nc)=>{ const t=tbl.querySelector(`[data-r="${nr}"][data-c="${nc}"]`); if(t){ e.preventDefault(); t.focus(); if(t.select){ try{t.select();}catch(_){} } } };
+    if(e.key==='Enter'){ go(e.shiftKey?r-1:r+1, c); }
+    else if(e.key==='ArrowDown' && !isSel){ go(r+1,c); }
+    else if(e.key==='ArrowUp' && !isSel){ go(r-1,c); }
+  });
+}
+function addDiaryRow(){
+  const fEl=document.getElementById('diaryFilter'); const df=(fEl&&fEl.value)?fEl.value:todayStr();
+  const d={id:diaryNextId(),date:df,project:'',work:'',priority:'Normal',status:'Not Started'};
+  DIARY.push(d); saveDiary();
+  setTimeout(()=>{ const inp=document.querySelector(`#diaryTable input[data-id="${d.id}"][data-k="project"]`); if(inp) inp.focus(); },60);
+  toast('Diary entry added');
+}
+function deleteDiaryRow(id){ if(!confirm('Delete this diary entry?'))return; DIARY=DIARY.filter(d=>d.id!==id); saveDiary(); toast('Entry deleted'); }
+function clearDiaryFilter(){ const f=document.getElementById('diaryFilter'); if(f)f.value=''; renderDiary(); }
+function exportDiaryCSV(){
+  const cols=[['date','Date'],['project','Project'],['work','Work to Do'],['priority','Priority'],['status','Status']];
+  const q=s=>'"'+(s??'').toString().replace(/"/g,'""')+'"';
+  let csv=q('S.#')+','+cols.map(c=>q(c[1])).join(',')+'\r\n';
+  DIARY.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach((d,i)=>{ csv+=q(i+1)+','+cols.map(c=>q(d[c[0]])).join(',')+'\r\n'; });
+  download(`COS-Diary_${stamp()}.csv`, '\ufeff'+csv, 'text/csv;charset=utf-8');
+  toast('Diary exported');
+}
+function printDiary(){
+  const fEl=document.getElementById('diaryFilter'); const filt=fEl?fEl.value:'';
+  let list=DIARY.slice(); if(filt)list=list.filter(d=>d.date===filt);
+  // group by date, newest first
+  const byDay={}; list.forEach(d=>{ const k=d.date||'(no date)'; (byDay[k]=byDay[k]||[]).push(d); });
+  const days=Object.keys(byDay).sort((a,b)=>b.localeCompare(a));
+  const today=todayStr();
+  const yday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const dayHeading=k=>{ if(k===today)return 'Today · '+k; if(k===yday)return 'Yesterday · '+k; if(k==='(no date)')return 'No date'; return k; };
+  let body='';
+  if(!days.length){ body='<p>No entries.</p>'; }
+  days.forEach(k=>{
+    const rows=byDay[k].map((d,i)=>`<tr><td>${i+1}</td><td>${esc(d.project||'')}</td><td style="text-align:left">${esc(d.work||'')}</td><td>${esc(d.priority||'')}</td><td>${esc(d.status||'')}</td></tr>`).join('');
+    body+=`<h2>${dayHeading(k)} <span class="cnt">(${byDay[k].length})</span></h2>
+      <table><thead><tr><th>S.#</th><th>Project</th><th>Work to Do</th><th>Priority</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+  });
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print','err'); return; }
+  w.document.write('<html><head><title>COS Diary</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1a2432}h1{color:#c0392b;text-align:center;font-size:22px;margin:0 0 4px;text-transform:uppercase}.sub{text-align:center;color:#666;font-size:12px;margin-bottom:20px}h2{font-size:14px;margin:20px 0 6px;color:#12254f;border-bottom:2px solid #12254f;padding-bottom:3px}h2 .cnt{color:#888;font-weight:normal;font-size:12px}table{border-collapse:collapse;width:100%;margin-bottom:6px}th,td{border:1px solid #999;padding:6px 9px;font-size:12px;text-align:center}th{background:#cfd4da}</style></head><body><h1>Data Entry — COS Diary</h1><div class="sub">The Vertical · COS ~ CDO'+(filt?(' · '+filt):'')+' · Printed '+new Date().toLocaleDateString()+'</div>'+body+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(()=>{ try{w.print();}catch(e){} },300);
+}
+
 /* ============ Data file on drive (File System Access) ============ */
 const fsSupported = (typeof window!=='undefined') && ('showSaveFilePicker' in window);
 let dataHandle=null, dfConnected=false, fileWriteTimer=null, fileWriting=false;
@@ -1373,7 +2038,7 @@ async function idbSet(k,v){ try{ const db=await idb(); return await new Promise(
 async function idbGet(k){ try{ const db=await idb(); return await new Promise((res)=>{ const tx=db.transaction('kv','readonly'); const rq=tx.objectStore('kv').get(k); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>res(null); }); }catch(e){ return null; } }
 async function idbDel(k){ try{ const db=await idb(); const tx=db.transaction('kv','readwrite'); tx.objectStore('kv').delete(k); }catch(e){} }
 
-function filerpayload(){ return JSON.stringify({app:'CDO Task Control',version:1,savedAt:new Date().toISOString(),tasks:TASKS,refs:REFS},null,2); }
+function filerpayload(){ return JSON.stringify({app:'CDO Task Control',version:1,savedAt:new Date().toISOString(),tasks:TASKS,refs:REFS,diary:DIARY,issues:ISSUES},null,2); }
 async function ensurePerm(handle,mode='readwrite'){
   if(!handle.queryPermission) return true;
   if(await handle.queryPermission({mode})==='granted') return true;
@@ -1401,6 +2066,8 @@ function applyLoaded(parsed,fromFile){
   if(!Array.isArray(incoming)) throw new Error('bad file');
   TASKS=incoming.map((t,i)=>({...t,id:t.id||i+1}));
   if(parsed && parsed.refs && typeof parsed.refs==='object'){ Object.keys(parsed.refs).forEach(k=>{ if(Array.isArray(parsed.refs[k])) REFS[k]=parsed.refs[k]; }); saveRefs(); }
+  if(parsed && Array.isArray(parsed.diary)){ DIARY=parsed.diary; if(hasStorage){ try{ localStorage.setItem(DIARY_KEY,JSON.stringify(DIARY)); }catch(e){} } }
+  if(parsed && Array.isArray(parsed.issues)){ ISSUES=parsed.issues; if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY,JSON.stringify(ISSUES)); }catch(e){} } }
   buildSelects(); buildDatalists();
   if(hasStorage){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(TASKS)); localStorage.setItem(META_KEY,new Date().toISOString()); }catch(e){} }
   refreshAll();
@@ -1491,7 +2158,7 @@ function download(filename, text, type){
 }
 function stamp(){ return new Date().toISOString().slice(0,16).replace(/[:T]/g,'-'); }
 function exportJSON(){
-  download(`CDO-tasks-backup_${stamp()}.json`, JSON.stringify({app:'CDO Task Control',version:1,exported:new Date().toISOString(),tasks:TASKS},null,2),'application/json');
+  download(`CDO-tasks-backup_${stamp()}.json`, JSON.stringify({app:'CDO Task Control',version:1,exported:new Date().toISOString(),tasks:TASKS,refs:REFS,diary:DIARY,issues:ISSUES},null,2),'application/json');
   toast('Backup downloaded');
 }
 function importJSON(ev){
@@ -1503,8 +2170,9 @@ function importJSON(ev){
       const incoming=Array.isArray(parsed)?parsed:parsed.tasks;
       if(!Array.isArray(incoming)) throw new Error('bad file');
       const mode=confirm(`Found ${incoming.length} tasks.\n\nOK = REPLACE all current tasks\nCancel = MERGE (add to current)`);
-      if(mode){ TASKS=incoming.map((t,i)=>({...t,id:t.id||i+1})); }
-      else { let mx=nextId(); incoming.forEach(t=>TASKS.push({...t,id:mx++})); }
+      if(mode){ TASKS=incoming.map((t,i)=>({...t,id:t.id||i+1})); if(Array.isArray(parsed.diary)){ DIARY=parsed.diary; saveDiary(true); } if(Array.isArray(parsed.issues)){ ISSUES=parsed.issues; saveIssues(true); } }
+      else { let mx=nextId(); incoming.forEach(t=>TASKS.push({...t,id:mx++})); if(Array.isArray(parsed.diary)){ let dm=diaryNextId(); parsed.diary.forEach(d=>DIARY.push({...d,id:dm++})); saveDiary(true); } if(Array.isArray(parsed.issues)){ let im=issueNextId(); parsed.issues.forEach(d=>ISSUES.push({...d,id:im++})); saveIssues(true); } }
+      if(parsed.refs && typeof parsed.refs==='object'){ Object.keys(parsed.refs).forEach(k=>{ if(Array.isArray(parsed.refs[k])) REFS[k]=parsed.refs[k]; }); saveRefs(); }
       buildSelects(); buildDatalists(); save();
       toast(`Imported ${incoming.length} tasks`);
     }catch(e){ toast('Could not read that file','err'); }
@@ -1533,7 +2201,7 @@ function renderBackupStats(){
   document.getElementById('bTotal').textContent=TASKS.length;
   const meta=hasStorage?localStorage.getItem(META_KEY):null;
   document.getElementById('bSaved').textContent=meta?new Date(meta).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-  document.getElementById('bStore').textContent = sheetSyncEnabled() ? 'Google Sheet (shared)' : (dfConnected ? 'Drive file' : (hasStorage?'This browser':'Unavailable'));
+  document.getElementById('bStore').textContent = sheetSyncEnabled() ? 'Database (shared)' : (dfConnected ? 'Drive file' : (hasStorage?'This browser':'Unavailable'));
 }
 
 /* ============ Toast & Nav ============ */
@@ -1543,25 +2211,86 @@ function toast(msg,type){
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(30px)'; el.style.transition='.3s'; setTimeout(()=>el.remove(),300); },2600);
 }
-const TAB_PROTECTED=['spreadsheet','master','backup'];
+const EDIT_KEY='cdo_task_editpw_v1';
+const EDIT_OFF_KEY='cdo_task_editlock_off_v1';
+const PROTECTED_TABS=['diary','spreadsheet','master','backup'];
+let editorUnlocked=false, pendingTab=null, egMode='enter';
+function getEditPw(){ return hasStorage?localStorage.getItem(EDIT_KEY):null; }
+function editLockOff(){ return hasStorage && localStorage.getItem(EDIT_OFF_KEY)==='1'; }
 function activateTab(v){
-  if(TAB_PROTECTED.includes(v)){
-    tlRequest(v);
-    return;
-  }
-  doActivateTab(v);
+  if(PROTECTED_TABS.includes(v) && hasStorage && !editorUnlocked && !editLockOff()){ openEditGate(v); return; }
+  doActivate(v);
 }
-function doActivateTab(v){
+function doActivate(v){
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('active', x.dataset.view===v));
   document.querySelectorAll('.view').forEach(sec=>sec.classList.remove('active'));
   const target=document.getElementById('view-'+v); if(target) target.classList.add('active');
-  if(v==='executives') renderExecutives();
+  if(v==='executives') showExecChooser();
   else if(v==='dashboard') renderDashboard();
   else if(v==='tasks') render();
+  else if(v==='diary') renderDiary();
+  else if(v==='diaryboard') renderDiaryBoard();
+  else if(v==='issues'){ buildIssueSelects(); renderIssues(); }
+  else if(v==='issuesview') renderIssuesView();
   else if(v==='spreadsheet') renderSpreadsheet();
   else if(v==='master') renderMaster();
   else if(v==='backup') renderBackupStats();
   window.scrollTo(0,0);
+}
+function openEditGate(v){
+  pendingTab=v;
+  egMode = getEditPw() ? 'enter' : 'create';
+  const secName={diary:'the Diary',issues:'the Issue Register',spreadsheet:'the Spreadsheet',master:'the Master lists',backup:'the Backup tools'}[v]||'this section';
+  const title=document.getElementById('egTitle'), msg=document.getElementById('egMsg'), p2=document.getElementById('egPass2'), btn=document.getElementById('egBtn'), skip=document.getElementById('egSkip');
+  if(egMode==='create'){
+    title.textContent='🔒 Set editor password';
+    msg.innerHTML='Create a password to lock the <b>Spreadsheet, Master &amp; Backup</b> tabs. It will be required to edit them.';
+    p2.style.display='block'; btn.textContent='Save & Open'; skip.style.display='block';
+  }else{
+    title.textContent='🔒 Editor access';
+    msg.innerHTML='Enter the editor password to open <b>'+secName+'</b>. Viewing the rest of the app doesn\'t need it.';
+    p2.style.display='none'; btn.textContent='Unlock'; skip.style.display='none';
+  }
+  document.getElementById('egPass').value=''; document.getElementById('egPass2').value=''; document.getElementById('egErr').textContent='';
+  document.getElementById('editGate').classList.add('show');
+  setTimeout(()=>document.getElementById('egPass').focus(),50);
+}
+function closeEditGate(){ document.getElementById('editGate').classList.remove('show'); pendingTab=null; }
+function egErr(m){ document.getElementById('egErr').textContent=m||''; }
+function finishGate(){ const v=pendingTab; document.getElementById('editGate').classList.remove('show'); pendingTab=null; doActivate(v); }
+function skipEditorLock(){
+  if(hasStorage){ localStorage.setItem(EDIT_OFF_KEY,'1'); }
+  editorUnlocked=true; toast('Editor lock left off'); finishGate();
+}
+function submitEditGate(){
+  const p=document.getElementById('egPass').value;
+  if(egMode==='create'){
+    const p2=document.getElementById('egPass2').value;
+    if(p.length<3){ egErr('Use at least 3 characters'); return; }
+    if(p!==p2){ egErr('Passwords do not match'); return; }
+    localStorage.setItem(EDIT_KEY, pwHash(p)); localStorage.removeItem(EDIT_OFF_KEY);
+    editorUnlocked=true; toast('Editor password set'); finishGate();
+  }else{
+    if(pwHash(p)===getEditPw()){ editorUnlocked=true; toast('Editor access unlocked for this session'); finishGate(); }
+    else{ egErr('Incorrect editor password'); const el=document.getElementById('egPass'); el.value=''; el.focus(); }
+  }
+}
+function setEditorPassword(){
+  if(!hasStorage){ alert('Storage is unavailable, so an editor password cannot be saved in this browser.'); return; }
+  const cur=getEditPw();
+  if(cur){ const old=prompt('Enter current editor password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current editor password.'); return; } }
+  const np=prompt('New editor password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
+  const np2=prompt('Confirm editor password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
+  localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY); editorUnlocked=true; toast('Editor password set');
+  alert('Editor password set. Spreadsheet, Master and Backup now require it.');
+}
+function removeEditorPassword(){
+  const cur=getEditPw();
+  if(!cur && editLockOff()){ alert('The editor lock is already off.'); return; }
+  if(cur){ const old=prompt('Enter current editor password to turn the lock off:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect editor password.'); return; } }
+  if(!confirm('Turn OFF the editor lock? Anyone who can open the app will then be able to edit the Spreadsheet, Master and Backup tabs.')) return;
+  if(hasStorage){ localStorage.removeItem(EDIT_KEY); localStorage.setItem(EDIT_OFF_KEY,'1'); }
+  editorUnlocked=true; toast('Editor lock turned off');
 }
 document.querySelectorAll('nav.tabs button').forEach(b=>{
   b.addEventListener('click',()=>activateTab(b.dataset.view));
@@ -1613,66 +2342,73 @@ function sha256(ascii){
   }
   return result;
 }
-/* Fixed password — same on every device/browser that opens this file. */
-const FIXED_APP_PASSWORD='123';
+const PW_KEY='cdo_task_pw_v1', PW_SALT='CDOvertical::';
+function pwHash(p){ return sha256(unescape(encodeURIComponent(PW_SALT+p))); }
+function getPw(){ return hasStorage?localStorage.getItem(PW_KEY):null; }
+let lkMode='enter';
 function lkInit(){
   const ls=document.getElementById('lockscreen');
+  if(!hasStorage){ ls.style.display='none'; return; }   // cannot store a password without storage
+  const has=getPw();
   const sub=document.getElementById('lkSub'), p2=document.getElementById('lkPass2'), btn=document.getElementById('lkBtn'), hint=document.getElementById('lkHint');
-  sub.textContent='Enter password to continue';
-  p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
+  if(!has){
+    lkMode='setup'; sub.textContent='Create a password to protect this app';
+    p2.style.display='block'; btn.textContent='Save & Open';
+    hint.textContent='Keep a note of it — there is no password recovery.';
+  }else{
+    lkMode='enter'; sub.textContent='Enter password to continue';
+    p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
+  }
   ls.style.display='flex';
   setTimeout(()=>document.getElementById('lkPass').focus(),50);
 }
 function lkErr(m){ document.getElementById('lkErr').textContent=m||''; }
 function lkSubmit(){
   const p=document.getElementById('lkPass').value;
-  if(p===FIXED_APP_PASSWORD){ lkUnlock(); }
-  else{ lkErr('Incorrect password'); const el=document.getElementById('lkPass'); el.value=''; el.focus(); }
+  if(lkMode==='setup'){
+    const p2=document.getElementById('lkPass2').value;
+    if(p.length<3){lkErr('Use at least 3 characters');return;}
+    if(p!==p2){lkErr('Passwords do not match');return;}
+    localStorage.setItem(PW_KEY, pwHash(p)); lkUnlock();
+  }else{
+    if(pwHash(p)===getPw()){ lkUnlock(); }
+    else{ lkErr('Incorrect password'); const el=document.getElementById('lkPass'); el.value=''; el.focus(); }
+  }
 }
 function lkUnlock(){ document.getElementById('lockscreen').style.display='none'; lkErr(''); document.getElementById('lkPass').value=''; document.getElementById('lkPass2').value=''; }
 ['lkPass','lkPass2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') lkSubmit(); }); });
-
-
-/* ============ Tab (Spreadsheet/Master/Backup) password lock ============ */
-/* Fixed password — same on every device/browser that opens this file, since it is
-   checked directly instead of being read from this browser's local storage. */
-const FIXED_TAB_PASSWORD='555';
-let tlPendingView=null, tlSessionUnlocked=false; // unlocked stays true only for this page load
-function tlRequest(view){
-  if(tlSessionUnlocked){ doActivateTab(view); return; }
-  tlPendingView=view;
-  const ls=document.getElementById('tablockscreen');
-  const sub=document.getElementById('tlSub'), p2=document.getElementById('tlPass2'), btn=document.getElementById('tlBtn'), hint=document.getElementById('tlHint');
-  document.getElementById('tlErr').textContent='';
-  document.getElementById('tlPass').value=''; document.getElementById('tlPass2').value='';
-  sub.textContent='Enter password to open this section';
-  p2.style.display='none'; btn.textContent='Unlock'; hint.textContent='';
-  ls.style.display='flex';
-  setTimeout(()=>document.getElementById('tlPass').focus(),50);
+(function(){ ['egPass','egPass2'].forEach(id=>{ const eg=document.getElementById(id); if(eg) eg.addEventListener('keydown',e=>{ if(e.key==='Enter') submitEditGate(); }); }); const gate=document.getElementById('editGate'); if(gate) gate.addEventListener('click',e=>{ if(e.target.id==='editGate') closeEditGate(); }); })();
+function changePassword(){
+  if(!hasStorage){ alert('Storage is unavailable, so a password cannot be saved in this browser.'); return; }
+  const cur=getPw();
+  if(cur){ const old=prompt('Enter current password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current password.'); return; } }
+  const np=prompt('New password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
+  const np2=prompt('Confirm new password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
+  localStorage.setItem(PW_KEY, pwHash(np)); toast('Password updated'); alert('Password updated. It will be required next time you open the app.');
 }
-function tlCancel(){
-  document.getElementById('tablockscreen').style.display='none';
-  tlPendingView=null;
+function removePassword(){
+  if(!hasStorage) return;
+  const cur=getPw();
+  if(!cur){ alert('No password is currently set.'); return; }
+  const old=prompt('Enter current password to remove it:'); if(old===null)return;
+  if(pwHash(old)!==cur){ alert('Incorrect password.'); return; }
+  if(!confirm('Remove the password? The app will open without one.')) return;
+  localStorage.removeItem(PW_KEY); toast('Password removed');
 }
-function tlSubmit(){
-  const p=document.getElementById('tlPass').value;
-  if(p===FIXED_TAB_PASSWORD){ tlSessionUnlocked=true; tlUnlock(); }
-  else{ document.getElementById('tlErr').textContent='Incorrect password'; const el=document.getElementById('tlPass'); el.value=''; el.focus(); }
-}
-function tlUnlock(){
-  document.getElementById('tablockscreen').style.display='none';
-  const v=tlPendingView; tlPendingView=null;
-  if(v) doActivateTab(v);
-}
-['tlPass','tlPass2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') tlSubmit(); }); });
 
 /* ============ Init ============ */
 loadData();
 loadRefs();
+loadDiary();
+loadIssues();
 buildSelects();
 buildDatalists();
+buildIssueSelects();
 document.querySelector('thead th[data-sort="target"] .arw').textContent='▲';
 refreshAll();
+gridNav('ssTable');
+gridNav('diaryTable');
+gridNav('issuesTable');
 lkInit();
 fileInit();
 if(sheetSyncEnabled()) setInterval(()=>pullFromSheet(true), 20000);
