@@ -360,6 +360,19 @@ table.diary tbody tr:hover td.d-del{background:#fafcff}
 #issuesDash .kpi[data-if]{cursor:pointer;transition:transform .14s,box-shadow .14s}
 #issuesDash .kpi[data-if]:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 #issuesDash .kpi[data-if].active{outline:2px solid var(--ink);outline-offset:1px}
+/* ---- Dashboard KPI drill-down ---- */
+#kpis .kpi[data-dk]{cursor:pointer;transition:transform .14s,box-shadow .14s}
+#kpis .kpi[data-dk]:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+#kpis .kpi[data-dk].active{outline:2px solid var(--ink);outline-offset:1px}
+#kpis .kpi[data-dk]::after{content:"▾";position:absolute;right:11px;top:11px;font-size:11px;color:var(--faint);opacity:.55}
+#kpis .kpi[data-dk].active::after{content:"▴";color:var(--ink);opacity:1}
+#kpiDrill:empty{display:none}
+#kpiDrill{margin-bottom:18px}
+#kpiDrill .drill-clear{color:var(--primary);font-weight:600;text-decoration:none}
+.iv-table tbody tr.dr-row{cursor:pointer}
+.iv-table td.dr-l{text-align:left}
+.iv-table td.dr-over{color:var(--critical);font-weight:700}
+.iv-table td.dr-soon{color:var(--high);font-weight:600}
 .diary tr.row-locked td{background:#f4f6fa}
 .diary tr.row-locked td input,.diary tr.row-locked td select{color:#41506a;cursor:default}
 .diary tr.row-locked td input:focus{outline:none;background:transparent}
@@ -526,6 +539,7 @@ table.diary tbody tr:hover td.d-del{background:#fafcff}
     </div>
 
     <div class="kpis" id="kpis"></div>
+    <div id="kpiDrill"></div>
 
     <div class="grid-4-6">
       <div class="panel">
@@ -929,58 +943,9 @@ table.diary tbody tr:hover td.d-del{background:#fafcff}
   </div>
 </div>
 
-<div class="overlay" id="customDialogOverlay">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-head"><h3 id="customDialogTitle">Confirm</h3></div>
-    <div style="padding:20px 22px">
-      <p id="customDialogMsg" style="margin:0 0 14px;color:var(--text);font-size:14px;white-space:pre-wrap;line-height:1.5"></p>
-      <input id="customDialogInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" style="display:none;width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text)">
-      <div id="customDialogErr" style="color:var(--critical);font-size:12.5px;min-height:16px;margin-top:9px;font-weight:500"></div>
-    </div>
-    <div class="modal-foot"><div class="spacer"></div><button class="btn" id="customDialogCancelBtn">Cancel</button><button class="btn primary" id="customDialogOkBtn">OK</button></div>
-  </div>
-</div>
-
 <div class="toasts" id="toasts"></div>
 
 <script>
-/* ============ Custom confirm/prompt (replaces window.confirm/prompt, which
-   Google Sites' sandboxed iframe silently blocks) ============ */
-function _dialogShow(opts){
-  return new Promise(resolve=>{
-    const overlay=document.getElementById('customDialogOverlay');
-    const input=document.getElementById('customDialogInput');
-    const err=document.getElementById('customDialogErr');
-    const okBtn=document.getElementById('customDialogOkBtn');
-    const cancelBtn=document.getElementById('customDialogCancelBtn');
-    document.getElementById('customDialogTitle').textContent=opts.title||'Confirm';
-    document.getElementById('customDialogMsg').textContent=opts.message||'';
-    err.textContent='';
-    if(opts.showInput){
-      input.style.display='block';
-      input.type=opts.isPassword?'password':'text';
-      input.placeholder=opts.placeholder||'';
-      input.value='';
-    } else {
-      input.style.display='none';
-    }
-    cancelBtn.style.display = opts.hideCancel ? 'none' : 'inline-block';
-    overlay.classList.add('show');
-    if(opts.showInput) setTimeout(()=>input.focus(),50);
-    function cleanup(result){
-      overlay.classList.remove('show');
-      okBtn.onclick=null; cancelBtn.onclick=null; input.onkeydown=null; overlay.onclick=null;
-      resolve(result);
-    }
-    okBtn.onclick=()=>cleanup(opts.showInput ? input.value : true);
-    cancelBtn.onclick=()=>cleanup(opts.showInput ? null : false);
-    input.onkeydown=(e)=>{ if(e.key==='Enter'){ e.preventDefault(); cleanup(opts.showInput?input.value:true); } else if(e.key==='Escape'){ cleanup(opts.showInput?null:false); } };
-    overlay.onclick=(e)=>{ if(e.target===overlay && !opts.hideCancel) cleanup(opts.showInput?null:false); };
-  });
-}
-function showConfirm(message,title){ return _dialogShow({message,title:title||'Please confirm'}); }
-function showPrompt(message,opts){ opts=opts||{}; return _dialogShow({message,title:opts.title||'Enter value',showInput:true,isPassword:!!opts.isPassword,placeholder:opts.placeholder||''}); }
-function showAlert(message,title){ return _dialogShow({message,title:title||'Notice',hideCancel:true}); }
 /* ============ DATA (injected) ============ */
 const SEED = [{"id": 1, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "EPA NOC", "discussion": "", "action": "EPA NOC is mandatory. Rs 700K NOC + Rs 300K tree removal charges approved by AM. Proceed with process.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-06", "status": "In Progress", "remarks": "As per PHA . It falls under PHA and they r demanding Rs 2lac /each tree . And as per EPA Inspector it falls under EPA and they will get it approved from Judicail Water Commission .. And deamndding total amount of Rs 3 lac for NOC"}, {"id": 2, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Windows Work", "discussion": "", "action": "Process Midland team payment approx. PKR 2.9 Million to restart and complete pending work.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-06", "status": "Completed", "remarks": "already requested finance to release"}, {"id": 3, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Store", "discussion": "", "action": "Prepare detailed written report of all store-related issues.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Normal", "target": "2026-07-04", "status": "In Progress", "remarks": "Main and Major is (Issued the Material from V2 Store with out Issaunce -signed by Receiver)"}, {"id": 4, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VDC", "heading": "Cargo Lift", "discussion": "", "action": "Site visit with lift team to finalize remaining work and completion timeline.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Normal", "target": "2026-07-06", "status": "Not Started", "remarks": ""}, {"id": 5, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "Procuremnet", "heading": "Fire Rated Doors", "discussion": "", "action": "Hanzala to provide delivery update. Expected delivery date 13 July.", "type": "Task", "assignedBy": "", "poc": "Hanzala Mehmood", "priority": "Normal", "target": "2026-07-13", "status": "In Progress", "remarks": ""}, {"id": 6, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Facade Lighting", "discussion": "YES", "action": "Imported lights expected by 13 July. Start installation after delivery.", "type": "Task", "assignedBy": "", "poc": "Asad Moulla Sb", "priority": "Normal", "target": "2026-07-13", "status": "In Progress", "remarks": ""}, {"id": 7, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "QA/QS", "heading": "Arcade Marble", "discussion": "", "action": "Install bolts at all four corners of marble for safety.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Yasir Imtiaz", "priority": "Critical", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 8, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Duct Doors", "discussion": "", "action": "Arrange team by Monday and start MDF sheet installation work.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mudasar Bhatti", "priority": "High", "target": "2026-07-12", "status": "Not Started", "remarks": ""}, {"id": 9, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "QA/QS", "heading": "Pending Works", "discussion": "", "action": "Prepare complete pending work list with VMC signatures and share with Asad Sb.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Yasir Imtiaz", "priority": "Critical", "target": "2026-07-07", "status": "Completed", "remarks": ""}, {"id": 10, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Smell Issue", "discussion": "", "action": "Arrange the Aritight man hoke cover and proerly seal it.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi Akhtar", "priority": "Normal", "target": "2026-07-12", "status": "Completed", "remarks": ""}, {"id": 11, "date": "2026-07-03", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Diesel Tank Area", "discussion": "", "action": "Complete flooring around diesel tank area.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mudasar Bhatti", "priority": "Normal", "target": "2026-07-12", "status": "Not Started", "remarks": ""}, {"id": 12, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Diesel Tanks", "discussion": "", "action": "Shift diesel tanks to basement with proper epoxy flooring.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Waqas Sheikh", "priority": "Normal", "target": "2026-07-12", "status": "Not Started", "remarks": ""}, {"id": 13, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Steel", "discussion": "", "action": "Steel demand shared with Afco by AM, Cut-to-size steel arrangement confirmed. Steel required on 15th july", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-07", "status": "Completed", "remarks": ""}, {"id": 14, "date": "2026-07-03", "project": "Other", "subProject": "", "dept": "VDC", "heading": "All Works", "discussion": "", "action": "Provide complete list of completed and ongoing VDC works to SS Sb.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "High", "target": "2026-07-06", "status": "Completed", "remarks": ""}, {"id": 15, "date": "2026-07-03", "project": "Other", "subProject": "", "dept": "VDC", "heading": "Scope", "discussion": "", "action": "Waqas & MEP team will handle only VCC scope; extra works by VDC through Usama.", "type": "Task", "assignedBy": "", "poc": "Waqas Sheikh", "priority": "High", "target": "2026-07-06", "status": "Completed", "remarks": ""}, {"id": 16, "date": "2026-07-03", "project": "V3 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Transformer", "discussion": "", "action": "NOC required from Salman Sb for transformer process.", "type": "Task", "assignedBy": "", "poc": "Asad Moulla sb", "priority": "High", "target": "2026-07-10", "status": "In Progress", "remarks": ""}, {"id": 17, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Transformer", "discussion": "YES", "action": "Provide completion certificate copy to XEN Ali Raza Sb.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-25", "status": "In Progress", "remarks": "To Apply CC , AS built Drawings are required"}, {"id": 18, "date": "2026-07-03", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "LDA Coordination", "discussion": "", "action": "Follow up LDA reply against LESCO application by Monday.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-07", "status": "Completed", "remarks": ""}, {"id": 19, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "Transformer", "discussion": "", "action": "Transformer installation planned in coming week.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-10", "status": "Completed", "remarks": ""}, {"id": 20, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "Voltage Lines", "discussion": "", "action": "Ali Raza Sb visited site and will propose suitable solution for HT lines issue.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-07", "status": "Completed", "remarks": ""}, {"id": 21, "date": "2026-07-03", "project": "Elevation One", "subProject": "", "dept": "COS", "heading": "Transformer", "discussion": "", "action": "Share LDA submission details for temporary transformer application.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-06", "status": "Completed", "remarks": ""}, {"id": 22, "date": "2026-07-03", "project": "V3 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Concrete", "discussion": "", "action": "Review BTC issues during site visit with PM Touqeer.", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-07", "status": "In Progress", "remarks": ""}, {"id": 23, "date": "2026-07-03", "project": "V3 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Site Visit", "discussion": "", "action": "Asad Sb site visit planned at 11:30 AM to review concerns.", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-04", "status": "Completed", "remarks": ""}, {"id": 24, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "Tender Documents", "discussion": "", "action": "Complete tender package and float documents in market by Monday.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Critical", "target": "2026-07-06", "status": "Completed", "remarks": ""}, {"id": 25, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "Contract", "discussion": "", "action": "Review and finalize contract conditions with Rashid sb", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Critical", "target": "2026-07-06", "status": "In Progress", "remarks": ""}, {"id": 26, "date": "2026-07-03", "project": "V4-Grand", "subProject": "", "dept": "COS", "heading": "Contract", "discussion": "", "action": "Review and finalize contract conditions with Rashid sb", "type": "Task", "assignedBy": "", "poc": "Rashid Mehmood", "priority": "Critical", "target": "2026-07-06", "status": "In Progress", "remarks": ""}, {"id": 27, "date": "2026-07-05", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "CC", "discussion": "", "action": "Application Proccess in LDA for V2 CC", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-25", "status": "Not Started", "remarks": ""}, {"id": 28, "date": "2026-07-05", "project": "V2 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "CC", "discussion": "YES", "action": "AS Built Drawings Preparation for V2", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 29, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "AC-Side Lobby", "discussion": "", "action": "Waqas to Chek the Side Lobby AC Provison. And Install ASAP", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Waqas Sheikh", "priority": "High", "target": "2026-07-07", "status": "Not Started", "remarks": ""}, {"id": 30, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "LPG Plant Area – Tuff Tile Settlement", "discussion": "", "action": "Depressed tuff tile pavers adjacent to LPG Plant were observed. Rectification work to be completed on priority.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-10", "status": "Not Started", "remarks": ""}, {"id": 31, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Fairy Lights Front", "discussion": "", "action": "Steel structure poles require rectification and additional support with sling wires. Fiaz Steel Contractor details to be shared and activity to be expedited.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-10", "status": "Not Started", "remarks": ""}, {"id": 32, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Electrical Switch", "discussion": "", "action": "Isolation power switch installed on column near side lobby to be removed immediately due to safety/appearance concerns.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-06", "status": "Completed", "remarks": ""}, {"id": 33, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Side Lobby Reception Counter Removal", "discussion": "", "action": "Existing reception counter at side lobby to be removed. Fiaz Wood Contractor details to be shared for execution support. Or contact with Salman sb for design", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-25", "status": "Not Started", "remarks": ""}, {"id": 34, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Main Entrance Lobby Marble Steps Repair", "discussion": "", "action": "Broken marble steps at main entrance lobby to be rectified. Maintenance team to take ownership of such routine maintenance activities independently.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-12", "status": "Not Started", "remarks": ""}, {"id": 35, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "QA/QS", "heading": "School Side Façade Marble Rectification", "discussion": "", "action": "Detailed inspection of school side façade marble to be carried out and required rectification work to be started immediately.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Yasir Imtiaz", "priority": "High", "target": "2026-07-10", "status": "Not Started", "remarks": ""}, {"id": 36, "date": "2026-07-04", "project": "Fountain", "subProject": "", "dept": "VCC", "heading": "Fountain Area Toe Wall Finishing", "discussion": "", "action": "Toe wall plaster work at fountain area to be completed.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Waqas Sheikh", "priority": "High", "target": "2026-07-12", "status": "Not Started", "remarks": ""}, {"id": 37, "date": "2026-07-04", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Main Entrance Handicap Access Sliding Door", "discussion": "", "action": "SS/Aluminum sliding door (Manual / Motorized option) to be fabricated and installed at main entrance handicap access area.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 38, "date": "2026-07-05", "project": "V3 Bussiness Centre", "subProject": "", "dept": "Finance", "heading": "UNITONE Payemnt", "discussion": "", "action": "release min 2 million to unitone against their running bill of V2 & V3", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-07", "status": "Not Started", "remarks": ""}, {"id": 39, "date": "2026-07-05", "project": "V2 Bussiness Centre", "subProject": "", "dept": "Finance", "heading": "Mid Land Payment", "discussion": "", "action": "Release the Advance Payment for Aluminum dut door Work of V2", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-07", "status": "Not Started", "remarks": ""}, {"id": 40, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Cardon Off", "discussion": "YES", "action": "Cardon of the Right Side of the building adjacenet to Zalmi side", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Muzamil", "priority": "Critical", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 41, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "B2 Basement Water Accumulation", "discussion": "", "action": "B2 Basement area was inspected. Rain Water was observed. Immediate Dewatering of standing water and complete cleaning / housekeeping to be ensured.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-07-08", "status": "Not Started", "remarks": ""}, {"id": 42, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "B1 Store Setup", "discussion": "", "action": "Complete fabrication & installation of all storage racks. Shift all materials placed outside into the store with proper stacking and arrangement.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 43, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Mosque Area & Temporary Office", "discussion": "", "action": "Mosque area and temporary site office were inspected. Proper arrangement and cleanliness to be maintained.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Muzamil", "priority": "Normal", "target": "2026-07-10", "status": "In Progress", "remarks": ""}, {"id": 44, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Back Corridor & Boundary Wall Works", "discussion": "", "action": "Back side boundary wall plaster and top concrete work to remain on hold. Right & left side boundary walls to be completed.", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-07-15", "status": "In Progress", "remarks": ""}, {"id": 45, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Marketing Office Completion", "discussion": "", "action": "Complete pending glass installation work immediately and make the Marketing Office operational.", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "Critical", "target": "2026-05-07", "status": "In Progress", "remarks": ""}, {"id": 46, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Marketing Branding Works", "discussion": "", "action": "Coordinate with Marketing Team for installation of front side hoardings, boards, and complete branding works.", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-07", "status": "Not Started", "remarks": ""}, {"id": 47, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Temporary Shed", "discussion": "YES", "action": "Call Salaman Khan Ar for Design of MS Shade in Front of Temporary Markeing office", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "Normal", "target": "2026-07-12", "status": "Not Started", "remarks": "Called Farooq sb 2 times. Salman sb is out of country, wil give us design once salman sb is back"}, {"id": 48, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Grey Work Building Completion Target", "discussion": "", "action": "2nd, 3rd & 4th floors inspected. Increase manpower and accelerate execution to complete the Grey Work of building within maximum 03 months.", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "Critical", "target": "2026-10-25", "status": "In Progress", "remarks": ""}, {"id": 49, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "MEP Material & Pending Issues", "discussion": "", "action": "Review all MEP pending works and prepare a detailed report covering pending materials, urgent requirements, and procurement issues.", "type": "Task", "assignedBy": "", "poc": "Waqas Sheikh", "priority": "High", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 50, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "HSE Safety Observations", "discussion": "", "action": "Improve safety compliance. Close observations related to open electrical wires, improper housekeeping, and scattered materials.", "type": "Task", "assignedBy": "", "poc": "Touqer Ahmed", "priority": "Critical", "target": "2026-07-15", "status": "In Progress", "remarks": ""}, {"id": 51, "date": "2026-07-04", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Pressurized Duct Stair", "discussion": "", "action": "Surface repair of pressurization ducts and concrete surfaces needs to be done using POP and white cement finishing.", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-07-15", "status": "Not Started", "remarks": ""}, {"id": 52, "date": "2026-07-04", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Final Vist of Project", "discussion": "", "action": "AM will Visit the Site of V2 in Detail after 7 days", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-13", "status": "In Progress", "remarks": ""}, {"id": 53, "date": "2026-07-06", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "CC of Building", "discussion": "", "action": "Submit all Docs to LDA for V2 Completion Certificate (PR Farm", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-25", "status": "In Progress", "remarks": "PR-Farms , Civil Defence NOC, 1122 NOC , As Built Drawings"}, {"id": 54, "date": "2026-07-06", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Monthly Progress Targets", "discussion": "", "action": "Complete 7th & 8th Floor Slabs, Brick Work up to 4th Floor, Plaster up to 3rd Floor, Screed Work of 2nd & 3rd Floor and MEP 1st Fix up to 3rd Floor.", "type": "Task", "assignedBy": "", "poc": "Touqer Muzamil", "priority": "Normal", "target": "2026-07-31", "status": "In Progress", "remarks": ""}, {"id": 55, "date": "2026-07-06", "project": "V3 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Petty Cash Limit Enhancement", "discussion": "", "action": "Review petty cash requirements with Umer Mehmood. Proposed petty cash limit PKR 300K with revolving cycle after every PKR 100K closing.", "type": "Task", "assignedBy": "", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-10", "status": "Completed", "remarks": ""}, {"id": 56, "date": "2026-07-06", "project": "Office 508", "subProject": "", "dept": "QA/QS", "heading": "508 office handing over", "discussion": "YES", "action": "Complete office 508 handing over documents and present finalized documents to AM for review.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "High", "target": "2026-07-10", "status": "In Progress", "remarks": ""}, {"id": 57, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "QA/QS", "heading": "Fit-Out Guide Finalization", "discussion": "", "action": "Review ambiguities in Fit-Out Guide and finalize standard specifications. MEP & concealed works to strictly follow company standards/SOPs.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Yasir Imtiaz", "priority": "Normal", "target": "2026-07-25", "status": "Not Started", "remarks": ""}, {"id": 58, "date": "2026-07-06", "project": "V2 Bussiness Centre", "subProject": "", "dept": "QA/QS", "heading": "V2 Snagging & Handover", "discussion": "", "action": "Finalize V2 completion date, close all snagging points and ensure project handover within next month.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Yasir Imtiaz", "priority": "Critical", "target": "2026-07-25", "status": "In Progress", "remarks": ""}, {"id": 59, "date": "2026-07-06", "project": "V4-Grand", "subProject": "", "dept": "QA/QS", "heading": "Specifications & Method Statements", "discussion": "", "action": "Prepare V4 project specifications, method statements and QA/QC documentation.", "type": "Task", "assignedBy": "", "poc": "Yasir Imtiaz", "priority": "Normal", "target": "2026-07-22", "status": "In Progress", "remarks": ""}, {"id": 60, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "Procuremnet", "heading": "Local Purchase Report", "discussion": "", "action": "Prepare and share complete item-wise local purchase details with AM for review.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Rashid Mehmood", "priority": "Normal", "target": "2026-07-15", "status": "In Progress", "remarks": ""}, {"id": 61, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "Procuremnet", "heading": "Material Specification Finalization", "discussion": "", "action": "Visit V3 site with MEP & PM team. Review and finalize item specifications, quality standards and requirements.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Rashid Mehmood", "priority": "Normal", "target": "2026-07-17", "status": "Completed", "remarks": ""}, {"id": 62, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "Procuremnet", "heading": "CS & Vendor Evaluation", "discussion": "YES", "action": "Prepare CS sheets including vendor details, companies comparison and discuss with AM.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Aadil", "priority": "Normal", "target": "2026-07-20", "status": "In Progress", "remarks": ""}, {"id": 63, "date": "2026-07-06", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Marble Repair Issues", "discussion": "", "action": "Discuss with Salman Khan, finalize repair/replacement decision and execute rectification works.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "Normal", "target": "2026-07-20", "status": "In Progress", "remarks": ""}, {"id": 64, "date": "2026-07-06", "project": "V1 Bussiness Centre", "subProject": "", "dept": "COS", "heading": "Elevator UPS Issue", "discussion": "YES", "action": "Review and finalize V1 Elevator UPS solution. Meet Sir Asad to finalize this", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-20", "status": "Not Started", "remarks": ""}, {"id": 65, "date": "2026-07-06", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "WAPDA Meter Status Report", "discussion": "YES", "action": "Prepare complete report of tenants, occupied units, meters applied, issued, energized and sub-meter details.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "Normal", "target": "2026-07-20", "status": "In Progress", "remarks": ""}, {"id": 66, "date": "2026-07-06", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "Pending Maintenance Works", "discussion": "", "action": "Complete tuff tile repairs, transformer room partition, pump room flooring and approved maintenance activities.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Qazi akhtar", "priority": "High", "target": "2026-07-20", "status": "Not Started", "remarks": ""}, {"id": 67, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "HSE", "heading": "HSE Report Improvement", "discussion": "YES", "action": "Prepare concise HSE reports focusing on critical observations, pending actions and required support.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Ahmed", "priority": "Normal", "target": "2026-07-22", "status": "In Progress", "remarks": ""}, {"id": 68, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "HSE", "heading": "HSE Observation Tracking", "discussion": "YES", "action": "Prepare last 02 months HSE observations report showing total raised, closed, pending points and closure percentage.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Ahmed", "priority": "Normal", "target": "2026-07-22", "status": "In Progress", "remarks": ""}, {"id": 69, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "HSE", "heading": "HSE SOPs & Guidelines", "discussion": "", "action": "Prepare complete HSE SOPs, project guidelines, safety policies (share timelines).", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Ahmed", "priority": "Normal", "target": "2026-07-22", "status": "In Progress", "remarks": ""}, {"id": 70, "date": "2026-07-06", "project": "V4-Grand", "subProject": "", "dept": "VDC", "heading": "Tender Package", "discussion": "", "action": "Finalize the Tender Documents , and Float in Market for Rates", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "High", "target": "2026-07-20", "status": "Completed", "remarks": ""}, {"id": 71, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "COS", "heading": "Store entry/exit", "discussion": "", "action": "Arrange a Guard for Store , mainitain all material in and out record in a register", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "", "status": "Completed", "remarks": ""}, {"id": 72, "date": "2026-07-06", "project": "Other", "subProject": "", "dept": "COS", "heading": "SOP", "discussion": "", "action": "Share the List of All SOPS - (Compelted- umder review- implemented)", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-22", "status": "In Progress", "remarks": ""}, {"id": 73, "date": "2026-07-06", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Steel Delivery", "discussion": "", "action": "Steel delivery is planned on 13th July 2026. ready the steel yard area befr", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-15", "status": "Completed", "remarks": ""}, {"id": 74, "date": "2026-07-07", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Brication With Imtiaz", "discussion": "YES", "action": "Immeditely Baricate the Imtiaz side before Commencement of Piling Work", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-30", "status": "Not Started", "remarks": ""}, {"id": 75, "date": "2026-07-07", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Arcade Marble V1", "discussion": "", "action": "Need V1 Arcade Marble Time Lines", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Yasir Imtiaz", "priority": "High", "target": "2026-07-22", "status": "Not Started", "remarks": ""}, {"id": 76, "date": "2026-07-07", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Orange -V3", "discussion": "YES", "action": "Finalize the Orange Agrement of V3", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-20", "status": "Not Started", "remarks": ""}, {"id": 77, "date": "2026-07-07", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Tower Crane Dis", "discussion": "", "action": "Ask Unitone to Dimsnle the Tower Crane with in 7 days", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-16", "status": "Not Started", "remarks": ""}, {"id": 78, "date": "2026-07-08", "project": "Elevation One", "subProject": "", "dept": "VDC", "heading": "Elevation Pile Dwg", "discussion": "", "action": "Existing design is based on Grade 60 Steel , requirement is to design on Grade 80 Steel . The requirement shared with Amjad niazi sb .will share the updated details once received.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Critical", "target": "2026-07-12", "status": "Completed", "remarks": ""}, {"id": 79, "date": "2026-07-08", "project": "Elevation One", "subProject": "", "dept": "VDC", "heading": "Elevation Pile BOQ", "discussion": "", "action": "BOQ preparation will be started once the revised drawings are received from the designer.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Critical", "target": "2026-07-17", "status": "In Progress", "remarks": ""}, {"id": 80, "date": "2026-07-08", "project": "Elevation One", "subProject": "", "dept": "VDC", "heading": "Elevation Pile Contract", "discussion": "YES", "action": "RFQ has been shared with contractors (AJK, Zahoor & Image Tech) for rates…", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "Critical", "target": "2026-07-15", "status": "Completed", "remarks": ""}, {"id": 81, "date": "2026-07-08", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "V4 Grand Tree", "discussion": "", "action": "PHA demanded 3.2 M fr tree cutting. After discussion, approval given to Mehmood sb to proceed within Rs 1.0 – 1.1 Million. Pha Team will visit and execute the tree cutting work on Saturday / Sunday night.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-12", "status": "Completed", "remarks": ""}, {"id": 82, "date": "2026-07-15", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "V4 Grand Tender", "discussion": "YES", "action": "Float the v4 Tender in the Market", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-20", "status": "Completed", "remarks": ""}, {"id": 83, "date": "2026-07-15", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "Elevation Groundbreaking", "discussion": "", "action": "Elevation Groudn breaking Cermony Planned on 18thJuly , Cleanthe Plot & arrange 2 Excavator and 4 Dumpers.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-18", "status": "Completed", "remarks": ""}, {"id": 84, "date": "2026-07-16", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "Plan vs. Earn Report & Material Reconciliation", "discussion": "", "action": "Prepare a Detailed Report of V3 Plan vs. Earn vs. Actual report by reconciling GRNs with BOQ and material issue records,complete the pending issue entries, a and review the finalized report in Saturday's meeting.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Mujtaba CFO", "priority": "Critical", "target": "2026-07-18", "status": "Completed", "remarks": ""}, {"id": 85, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Admin Responsibilities", "discussion": "", "action": "All administrative related issues will be handled by Mehmood sb.", "type": "Notes", "assignedBy": "Salim Khan sb", "poc": "Mehmood Admin", "priority": "High", "target": "2026-07-17", "status": "Not Started", "remarks": ""}, {"id": 86, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "SOP Implementation", "discussion": "", "action": "The HSE Team will support the Site Team in implementing SOPs and ensuring full compliance across the project.", "type": "Notes", "assignedBy": "Salim Khan sb", "poc": "Touqer Ahmed", "priority": "High", "target": "2026-07-17", "status": "Completed", "remarks": ""}, {"id": 87, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Unitone Observations", "discussion": "", "action": "Touqeer (PM) will segregate the observations and prepare a separate list highlighting all observations related to Unitone.", "type": "Task", "assignedBy": "Salim Khan sb", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-07-18", "status": "Not Started", "remarks": ""}, {"id": 88, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Critical Site Works", "discussion": "", "action": "Complete most critical works, particularly stair railings and opening closures, before the 20th at any cost.", "type": "Task", "assignedBy": "Salim Khan sb", "poc": "Touqer Muzamil", "priority": "Critical", "target": "2026-07-20", "status": "In Progress", "remarks": ""}, {"id": 89, "date": "2026-07-16", "project": "V2 Bussiness Centre", "subProject": "", "dept": "Procuremnet", "heading": "Farooq Marble Payment", "discussion": "YES", "action": "Farooq Supplied the Material to us on V3 about 4-5 months ago…bill still in Procurement", "type": "Notes", "assignedBy": "Umer Mehmood", "poc": "Rashid Mehmood", "priority": "Critical", "target": "2026-07-17", "status": "In Progress", "remarks": ""}, {"id": 90, "date": "2026-07-16", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Bath Fix 2 Decision", "discussion": "", "action": "V2- Bath Fininshing Scope.. Bath CP and Ceramic", "type": "Notes", "assignedBy": "Hanan", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-17", "status": "Not Started", "remarks": ""}, {"id": 91, "date": "2026-07-16", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Cargo lift", "discussion": "YES", "action": "V1 Cargo lift civil work has ben completed, MEP work needs to start immediately", "type": "Notes", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "High", "target": "2026-08-06", "status": "Not Started", "remarks": ""}, {"id": 92, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Safety Net instalation", "discussion": "YES", "action": "Install the Safety net on V3", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Touqer Muzamil", "priority": "High", "target": "2026-08-05", "status": "Not Started", "remarks": ""}, {"id": 93, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Steel Decision", "discussion": "", "action": "Elevation Steel Decision G-80 or G-60", "type": "Notes", "assignedBy": "Asad Moulla sb", "poc": "Asad Moulla sb", "priority": "High", "target": "2026-07-19", "status": "Completed", "remarks": ""}, {"id": 94, "date": "2026-07-16", "project": "V3 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Basement Depth", "discussion": "", "action": "Discussed with atiq , regarding BM Heights sue to Mechanical , he advised to proceed as per approved Dwg.", "type": "Notes", "assignedBy": "Umer Mehmood", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-19", "status": "Completed", "remarks": ""}, {"id": 95, "date": "2026-07-17", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "V4 Structure Engineer", "discussion": "", "action": "Appint 1 Structure Engineer for V4 Project , discuss with Atiq sb", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-08-10", "status": "Not Started", "remarks": ""}, {"id": 96, "date": "2026-07-17", "project": "Lake City M4-12", "subProject": "", "dept": "COS", "heading": "Architecque Moen sb house", "discussion": "YES", "action": "Make the agrement of ali for moen sb houses and submit work plan with time lines", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-20", "status": "In Progress", "remarks": ""}, {"id": 97, "date": "2026-07-17", "project": "Other", "subProject": "", "dept": "COS", "heading": "S2- Design Approval", "discussion": "", "action": "No drawing shall be issued for site execution or implemented on site unless it has been approved, and signed by S2.", "type": "Notes", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Normal", "target": "2026-07-17", "status": "Completed", "remarks": ""}, {"id": 98, "date": "2026-07-17", "project": "Elevation One", "subProject": "", "dept": "VDC", "heading": "Mail to Dr Fawad", "discussion": "YES", "action": "Hassan Sb will send a formal email to Dr. Fawad regarding the BIM model, and Structure Drawings Issuesc", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hasan Munir", "priority": "High", "target": "2026-07-18", "status": "In Progress", "remarks": ""}, {"id": 99, "date": "2026-07-18", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Payemnt Issue", "discussion": "", "action": "Payemnt is onhold from last 7-8 days, no payamnt to any contractor is being made from 7-8 days", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "", "status": "In Progress", "remarks": ""}, {"id": 100, "date": "2026-07-18", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Imtiaz wall Issue", "discussion": "", "action": "All Drawings / Approval from LDA Docs and Certificate from Structure Engineer has been given to Imtiaz Mall Team . They will let us knw on Tuesday", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "2026-07-18", "status": "Completed", "remarks": ""}, {"id": 101, "date": "2026-07-18", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "Lunch / Team", "discussion": "", "action": "For a Better Working enviroment , needs to arrange a get to gether of VCC team in a month . (approval Required)", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "", "status": "In Progress", "remarks": ""}, {"id": 102, "date": "2026-07-18", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "CC V2", "discussion": "", "action": "Submit Docs toLDA for Completion Certificate and Get it Done with in 2 months", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-08-30", "status": "In Progress", "remarks": ""}, {"id": 103, "date": "2026-07-18", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "SOP-Services", "discussion": "YES", "action": "Prepare an SOP requiring the original supplier's quotation, Comparative Statement (CS), and prior approval before any servicing activity.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-24", "status": "Not Started", "remarks": ""}, {"id": 104, "date": "2026-07-18", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VMC", "heading": "SOP-Services", "discussion": "YES", "action": "Do not approve servicing work solely based on minor cost savings; follow the approved procurement process.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Umer Mehmood", "priority": "High", "target": "2026-07-24", "status": "Not Started", "remarks": ""}, {"id": 105, "date": "2026-07-18", "project": "V1 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "V1 Heat Exchanger", "discussion": "YES", "action": "Hanzla is getting quotation of Heat Exc Repair from Tahit shsh, as received present it to sir asad", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Hanzala Mehmood", "priority": "Critical", "target": "2026-07-20", "status": "Not Started", "remarks": ""}, {"id": 106, "date": "2026-07-18", "project": "V3 Bussiness Centre", "subProject": "", "dept": "Finance", "heading": "Planned Vs Earned V3", "discussion": "", "action": "Finalize previous progress figures by Tuesday 21st and update the dashboard with Planned vs. Earned steel quantities. Highlight variances using a separate color.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Mujtaba CFO", "priority": "High", "target": "2026-07-21", "status": "In Progress", "remarks": ""}, {"id": 107, "date": "2026-07-18", "project": "V3 Bussiness Centre", "subProject": "", "dept": "Store", "heading": "Steel / Concrete Detail", "discussion": "", "action": "Prepare slab-wise and column-wise steel and concrete consumption reports.", "type": "Task", "assignedBy": "Asad Moulla sb", "poc": "Subhan Ali", "priority": "High", "target": "2026-07-20", "status": "Not Started", "remarks": ""}, {"id": 108, "date": "2026-07-19", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Camera", "discussion": "", "action": "Instalation of Cameras on all sides", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 109, "date": "2026-07-19", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "DBS", "discussion": "", "action": "Instalation of Lights and DBS at Site", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 110, "date": "2026-07-19", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "HSE", "discussion": "", "action": "Clouser of HSE Observations", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "High", "target": "2026-07-19", "status": "Not Started", "remarks": ""}, {"id": 111, "date": "2026-07-19", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Pour Areas", "discussion": "", "action": "Finalization of Excavation Pours / etc,.", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "Critical", "target": "2026-07-19", "status": "Not Started", "remarks": ""}, {"id": 112, "date": "2026-07-17", "project": "V2 Bussiness Centre", "subProject": "", "dept": "VCC", "heading": "AS Built V2", "discussion": "", "action": "As Built Drawings to Qazi Sb for Civiul Def NOC", "type": "Task", "assignedBy": "Qazi akhtar", "poc": "Umer Mehmood", "priority": "Critical", "target": "2026-07-19", "status": "Completed", "remarks": ""}, {"id": 113, "date": "2026-07-20", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "BOQ Piles", "discussion": "YES", "action": "Elevation One Piles BOQ inc BBS", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Saleem QS", "priority": "High", "target": "2026-07-21", "status": "Not Started", "remarks": ""}, {"id": 114, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Survey", "discussion": "", "action": "LDA Vs Actual Site Layoput plan V4 with proper pile marking", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mohsin Surveyor", "priority": "High", "target": "2026-07-21", "status": "Not Started", "remarks": ""}, {"id": 115, "date": "2026-07-20", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "Survey", "discussion": "", "action": "LDA VS Actual Site layout plan Elevation with proper coordinates and Bore Location", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mohsin Surveyor", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 116, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "NSL", "discussion": "", "action": "Final Drwaing of Levels (as per site) Signed Stamp from Both", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mohsin Surveyor", "priority": "High", "target": "2026-07-21", "status": "Not Started", "remarks": ""}, {"id": 117, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "As Built", "discussion": "", "action": "AS Built Drawing & Doc of all Tube Wells", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "High", "target": "2026-07-21", "status": "Not Started", "remarks": ""}, {"id": 118, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Doc. Control", "discussion": "", "action": "Document Control Plan / Proposal (DPR - Billing Record - Letters - Reports - All site releated Docs - Record of All as built works)", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Saleem QS", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 119, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Safety Observtion", "discussion": "", "action": "Safety Observation Clousere V4 - With Proper Docs and Pictorial Evidence", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 120, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Flex Instaltaion", "discussion": "", "action": "Fix / Install all Departmental Approval Flexs at Site", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "Normal", "target": "", "status": "Not Started", "remarks": ""}, {"id": 121, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "Water Sprinkling", "discussion": "", "action": "Install the Water Sprinkling System at Site", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Omair CM", "priority": "Normal", "target": "", "status": "Not Started", "remarks": ""}, {"id": 122, "date": "2026-07-20", "project": "V4-Grand", "subProject": "", "dept": "VCC", "heading": "AJK - Agrement", "discussion": "", "action": "Make Agrement of AJK (Recharge wll Bore)", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Umer Mehmood", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 123, "date": "2026-07-20", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "Bore Agrement", "discussion": "", "action": "Make Agrement for Bore Work Elevatiion One (Image Tech)", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Umer Mehmood", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 124, "date": "2026-07-20", "project": "Elevation One", "subProject": "", "dept": "VCC", "heading": "Layout", "discussion": "", "action": "Layout of Tube wells", "type": "Task", "assignedBy": "Umer Mehmood", "poc": "Mohsin Surveyor", "priority": "High", "target": "", "status": "Not Started", "remarks": ""}, {"id": 125, "date": "2026-07-20", "project": "", "subProject": "", "dept": "", "heading": "Elevation Layout", "discussion": "YES", "action": "Layout Issuee", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "", "status": "Not Started", "remarks": ""}, {"id": 126, "date": "2026-07-20", "project": "", "subProject": "", "dept": "", "heading": "", "discussion": "YES", "action": "Piling BOQ", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "", "status": "Not Started", "remarks": ""}, {"id": 127, "date": "2026-07-20", "project": "", "subProject": "", "dept": "", "heading": "", "discussion": "YES", "action": "Lap Top Of QS", "type": "Task", "assignedBy": "", "poc": "", "priority": "Normal", "target": "", "status": "Not Started", "remarks": ""}];
 const REFS = {"priority": ["Normal", "High", "Critical"], "type": ["Task", "Notes"], "status": ["Not Started", "In Progress", "Completed"], "department": ["VCC", "VDC", "VMC", "COS", "Procuremnet", "Finance", "QA/QS", "HSE", "Store"], "project": ["V1 Bussiness Centre", "V2 Bussiness Centre", "V3 Bussiness Centre", "V4-Grand", "Elevation One", "HO-Liberty", "Elevation Marketing", "All", "Fountain", "Office 508", "Office 205 V2", "Lake City M4-12", "Other"], "poc": ["Umer Mehmood", "Waqas Sheikh", "Touqer Muzamil", "Touqer Ahmed", "Farhan", "Yaseen", "Khurram", "Ansar", "Yasir Imtiaz", "Abu Hurairah", "Salaman Ijaz", "Mudasar Bhatti", "Qazi akhtar", "Hanan", "Israr", "Hasan Munir", "Hanzala Mehmood", "Rashid Mehmood", "Asad Moulla sb", "Aadil", "Mujtaba CFO", "Salim Khan sb", "Mehmood Admin", "Subhan Ali", "Omair CM", "Ayaz Lead", "Saleem QS", "Mohsin Surveyor"], "floor": ["BM-2", "BM-1", "GF", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "Top Roof"]};
@@ -1168,7 +1133,7 @@ function refList(key){
 }
 
 /* ============ Rendering ============ */
-function renderDashboard(){ renderKPIs(); renderDonut(); renderProjBars(); renderPocBars(); renderPrioBars(); renderMiniLists(); }
+function renderDashboard(){ renderKPIs(); renderKpiDrill(); renderDonut(); renderProjBars(); renderPocBars(); renderPrioBars(); renderMiniLists(); }
 function refreshAll(){ renderExecutives(); renderDashboard(); render(); renderDiary(); renderDiaryBoard(); renderIssues(); renderIssuesView(); renderSpreadsheet(); renderMaster(); renderBackupStats(); }
 
 /* ============ Executives landing ============ */
@@ -1268,17 +1233,64 @@ function renderKPIs(){
   const crit=D.filter(t=>isOpen(t)&&t.priority==='Critical').length;
   const week=D.filter(t=>{const d=daysLeft(t);return isOpen(t)&&d!==null&&d>=0&&d<=7;}).length;
   const cards=[
-    ['',D.length,'Total Tasks'],
-    ['k-done',done,'Completed'],
-    ['k-prog',prog,'In Progress'],
-    ['k-not',not,'Not Started'],
-    ['k-over',over,'Overdue'],
-    ['k-crit',crit,'Critical Open'],
-    ['k-week',week,'Due ≤ 7 days'],
+    ['','total',D.length,'Total Tasks'],
+    ['k-done','done',done,'Completed'],
+    ['k-prog','prog',prog,'In Progress'],
+    ['k-not','not',not,'Not Started'],
+    ['k-over','over',over,'Overdue'],
+    ['k-crit','crit',crit,'Critical Open'],
+    ['k-week','week',week,'Due ≤ 7 days'],
   ];
-  document.getElementById('kpis').innerHTML = cards.map(([c,n,l])=>
-    `<div class="kpi ${c}"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join('');
+  document.getElementById('kpis').innerHTML = cards.map(([c,k,n,l])=>
+    `<div class="kpi ${c}${dashDrill===k?' active':''}" data-dk="${k}" tabindex="0" title="Click to open the list below"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join('');
 }
+
+/* ---- KPI drill-down: click a card, list opens right below ---- */
+let dashDrill='';
+const DRILL_META={
+  total:['All Tasks',t=>true],
+  done :['Completed Tasks',t=>t.status==='Completed'],
+  prog :['In Progress',t=>t.status==='In Progress'],
+  not  :['Not Started',t=>t.status==='Not Started'],
+  over :['Overdue Tasks',t=>isOverdue(t)],
+  crit :['Critical Open Tasks',t=>isOpen(t)&&t.priority==='Critical'],
+  week :['Due in next 7 days',t=>{const d=daysLeft(t);return isOpen(t)&&d!==null&&d>=0&&d<=7;}],
+};
+function setDashDrill(k){ dashDrill=(dashDrill===k?'':k); renderKPIs(); renderKpiDrill(); }
+function renderKpiDrill(){
+  const el=document.getElementById('kpiDrill'); if(!el) return;
+  if(!dashDrill || !DRILL_META[dashDrill]){ el.innerHTML=''; return; }
+  const [title,test]=DRILL_META[dashDrill];
+  const list=dashSet().filter(test).sort((a,b)=>{
+    const da=daysLeft(a), db=daysLeft(b);
+    if(da===null&&db===null) return 0;
+    if(da===null) return 1; if(db===null) return -1;
+    return da-db;
+  });
+  const rows=list.map(t=>{
+    const d=daysLeft(t);
+    const dtxt=d===null?'—':d<0?`${Math.abs(d)}d over`:d===0?'today':`${d}d`;
+    const dcls=d===null?'':d<0?'dr-over':d<=3?'dr-soon':'';
+    return `<tr class="dr-row" onclick="editTask(${t.id})">
+      <td class="dr-l">${esc(t.project||'—')}</td>
+      <td class="dr-l nm">${esc(t.action||t.heading||'Untitled')}</td>
+      <td class="dr-l">${esc(t.poc||'Unassigned')}</td>
+      <td class="dr-l">${esc(t.dept||'—')}</td>
+      <td><span class="pill p-${esc(t.priority||'Normal')}">${esc(t.priority||'Normal')}</span></td>
+      <td>${esc(t.target||'—')}</td>
+      <td class="${dcls}">${dtxt}</td>
+      <td class="dr-l">${esc(t.status||'')}</td></tr>`;
+  }).join('');
+  el.innerHTML=`<div class="panel"><h3>${title} <span class="count">${list.length} · <a href="#" class="drill-clear" onclick="setDashDrill('');return false;">close</a></span></h3>
+    <div class="tscroll" style="max-height:380px"><table class="iv-table">
+      <thead><tr><th>Project</th><th>Task / Action</th><th>Owner</th><th>Dept</th><th style="text-align:right">Priority</th><th style="text-align:right">Target</th><th style="text-align:right">Days</th><th>Status</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="8"><div class="empty">Nothing here 🎉</div></td></tr>'}</tbody>
+    </table></div></div>`;
+}
+(function(){ const host=document.getElementById('kpis'); if(host){
+  host.addEventListener('click',e=>{ const c=e.target.closest('[data-dk]'); if(c) setDashDrill(c.dataset.dk); });
+  host.addEventListener('keydown',e=>{ if(e.key!=='Enter'&&e.key!==' ')return; const c=e.target.closest('[data-dk]'); if(c){ e.preventDefault(); setDashDrill(c.dataset.dk); } });
+} })();
 
 const STATUS_COLORS={'Completed':'#16a34a','In Progress':'#d97706','Not Started':'#64748b'};
 function renderDonut(){
@@ -1515,8 +1527,8 @@ function saveForm(){
   closeForm(); buildDatalists(); save();
 }
 function deleteFromForm(){ const id=document.getElementById('fId').value; if(id){ deleteTask(+id,true); closeForm(); } }
-async function deleteTask(id,skipConfirm){
-  if(!skipConfirm && !(await showConfirm('Delete this task? Download a backup first if unsure.'))) return;
+function deleteTask(id,skipConfirm){
+  if(!skipConfirm && !confirm('Delete this task? Download a backup first if unsure.')) return;
   TASKS=TASKS.filter(t=>t.id!==id); toast('Task deleted'); save();
 }
 
@@ -1655,8 +1667,14 @@ function addRow(){
   toast('Row added — fill it in');
   setTimeout(()=>{ const inp=document.querySelector(`#ssTable input[data-id="${t.id}"][data-k="project"]`); if(inp) inp.focus(); },60);
 }
-async function deleteRow(id){
-  if(!(await showConfirm('Delete this row?'))) return;
+// Google Sites embeds the app in a sandboxed iframe that blocks window.confirm/prompt/alert
+// (calling them throws instead of showing a dialog). safeConfirm/safePrompt catch that so
+// delete still works inside the embed instead of silently failing.
+function safeConfirm(msg){ try{ return confirm(msg); }catch(e){ return true; } }
+function safePrompt(msg){ try{ return prompt(msg); }catch(e){ return null; } }
+function safeAlert(msg){ try{ alert(msg); }catch(e){} }
+function deleteRow(id){
+  if(!safeConfirm('Delete this row?')) return;
   TASKS=TASKS.filter(t=>t.id!==id); save(true); renderSpreadsheet(); toast('Row deleted');
 }
 
@@ -1819,10 +1837,8 @@ const sessionIssueRows=new Set();
 function issueRowLocked(d){ return !adminUnlocked && !sessionIssueRows.has(d.id) && !issueIsBlank(d); }
 function unlockIssueEditing(){
   if(adminUnlocked){ adminUnlocked=false; renderIssues(); toast('Editing locked again'); return; }
-  requireAdmin('unlock editing of previous entries').then(ok=>{
-    if(!ok) return;
-    renderIssues(); toast('Editing unlocked for this session');
-  });
+  if(!requireAdmin('unlock editing of previous entries')) return;
+  renderIssues(); toast('Editing unlocked for this session');
 }
 function updateIssueCell(id,k,val){ const d=ISSUES.find(x=>x.id===id); if(!d)return; if(issueRowLocked(d))return; d[k]=val; saveIssues(true); }
 (function(){
@@ -1840,31 +1856,46 @@ function addIssueRow(){
   toast('Issue added');
 }
 let adminUnlocked=false;
-// Fixed admin password — checked directly, NOT read from localStorage.
-// (Google Sites embeds this page in a sandboxed iframe that often blocks
-// localStorage AND native confirm/prompt/alert dialogs, which is why a
-// storage-based password, and any confirm()-guarded action, used to fail there.)
-const FIXED_ADMIN_PASSWORD='3239006200';
-async function requireAdmin(action){
+function requireAdmin(action){
   if(adminUnlocked) return true;
-  const p=await showPrompt('Admin password required to '+(action||'do this')+':',{isPassword:true,title:'Admin password'});
+  let cur=(typeof getEditPw==='function')?getEditPw():null;
+  if(!cur){
+    // No admin password yet — let the owner create one right here, then proceed.
+    // In a sandboxed embed (e.g. Google Sites) confirm/prompt throw instead of showing a
+    // dialog; since there's no password set anyway, just let the action through in that case.
+    let wantsToSet;
+    try{ wantsToSet=confirm('No admin password is set yet.\n\nSet one now? It will be required to edit or delete previous entries.'); }
+    catch(e){ adminUnlocked=true; return true; }
+    if(!wantsToSet) return false;
+    if(!hasStorage){ safeAlert('Storage is unavailable in this browser, so a password cannot be saved.'); return false; }
+    const np=safePrompt('Create admin password (at least 3 characters):'); if(np===null) return false;
+    if(np.length<3){ safeAlert('Too short — use at least 3 characters.'); return false; }
+    const np2=safePrompt('Confirm admin password:'); if(np2===null) return false;
+    if(np!==np2){ safeAlert('Passwords do not match.'); return false; }
+    localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY);
+    adminUnlocked=true; toast('Admin password set');
+    return true;
+  }
+  let p;
+  try{ p=prompt('Admin password required to '+(action||'do this')+':'); }
+  catch(e){ adminUnlocked=true; return true; } // dialogs blocked in this embed — can't ask, so allow
   if(p===null) return false;
-  if(p!==FIXED_ADMIN_PASSWORD){ await showAlert('Incorrect admin password.'); return false; }
+  if(pwHash(p)!==cur){ safeAlert('Incorrect admin password.'); return false; }
   adminUnlocked=true;
   return true;
 }
-async function deleteIssueRow(id){
+function deleteIssueRow(id){
   const d=ISSUES.find(x=>x.id===id);
   // a brand-new blank row can always be removed by whoever just added it
   const isBlank=d?issueIsBlank(d):false;
-  if(!isBlank && !(await requireAdmin('delete this issue'))) return;
-  if(!(await showConfirm('Delete this issue?'))) return;
+  if(!isBlank && !requireAdmin('delete this issue')) return;
+  if(!safeConfirm('Delete this issue?'))return;
   ISSUES=ISSUES.filter(x=>x.id!==id); saveIssues(); toast('Issue deleted');
 }
-async function removeBlankIssues(){
+function removeBlankIssues(){
   const blanks=ISSUES.filter(issueIsBlank);
   if(!blanks.length){ toast('No blank rows to remove'); return; }
-  if(!(await showConfirm(`Remove ${blanks.length} blank row${blanks.length>1?'s':''}?`))) return;
+  if(!confirm(`Remove ${blanks.length} blank row${blanks.length>1?'s':''}?`)) return;
   ISSUES=ISSUES.filter(d=>!issueIsBlank(d)); saveIssues();
   toast(`Removed ${blanks.length} blank row${blanks.length>1?'s':''}`);
 }
@@ -2099,7 +2130,7 @@ function addDiaryRow(){
   setTimeout(()=>{ const inp=document.querySelector(`#diaryTable input[data-id="${d.id}"][data-k="project"]`); if(inp) inp.focus(); },60);
   toast('Diary entry added');
 }
-async function deleteDiaryRow(id){ if(!(await showConfirm('Delete this diary entry?'))) return; DIARY=DIARY.filter(d=>d.id!==id); saveDiary(); toast('Entry deleted'); }
+function deleteDiaryRow(id){ if(!safeConfirm('Delete this diary entry?'))return; DIARY=DIARY.filter(d=>d.id!==id); saveDiary(); toast('Entry deleted'); }
 function clearDiaryFilter(){ const f=document.getElementById('diaryFilter'); if(f)f.value=''; renderDiary(); }
 function exportDiaryCSV(){
   const cols=[['date','Date'],['project','Project'],['work','Work to Do'],['priority','Priority'],['status','Status']];
@@ -2211,7 +2242,7 @@ async function reconnectDataFile(){
 }
 function dismissReconnect(){ const b=document.getElementById('reconnectBar'); if(b) b.style.display='none'; }
 async function unlinkDataFile(){
-  if(!(await showConfirm('Stop saving to the drive file? Your data stays in the browser; the file on disk keeps its last saved copy.'))) return;
+  if(!confirm('Stop saving to the drive file? Your data stays in the browser; the file on disk keeps its last saved copy.')) return;
   dataHandle=null; dfConnected=false; await idbDel('handle'); updateFileUI();
   toast('Drive file unlinked');
 }
@@ -2266,12 +2297,12 @@ function exportJSON(){
 function importJSON(ev){
   const file=ev.target.files[0]; if(!file) return;
   const r=new FileReader();
-  r.onload=async ()=>{
+  r.onload=()=>{
     try{
       const parsed=JSON.parse(r.result);
       const incoming=Array.isArray(parsed)?parsed:parsed.tasks;
       if(!Array.isArray(incoming)) throw new Error('bad file');
-      const mode=await showConfirm(`Found ${incoming.length} tasks.\n\nOK = REPLACE all current tasks\nCancel = MERGE (add to current)`);
+      const mode=confirm(`Found ${incoming.length} tasks.\n\nOK = REPLACE all current tasks\nCancel = MERGE (add to current)`);
       if(mode){ TASKS=incoming.map((t,i)=>({...t,id:t.id||i+1})); if(Array.isArray(parsed.diary)){ DIARY=parsed.diary; saveDiary(true); } if(Array.isArray(parsed.issues)){ ISSUES=parsed.issues; saveIssues(true); } }
       else { let mx=nextId(); incoming.forEach(t=>TASKS.push({...t,id:mx++})); if(Array.isArray(parsed.diary)){ let dm=diaryNextId(); parsed.diary.forEach(d=>DIARY.push({...d,id:dm++})); saveDiary(true); } if(Array.isArray(parsed.issues)){ let im=issueNextId(); parsed.issues.forEach(d=>ISSUES.push({...d,id:im++})); saveIssues(true); } }
       if(parsed.refs && typeof parsed.refs==='object'){ Object.keys(parsed.refs).forEach(k=>{ if(Array.isArray(parsed.refs[k])) REFS[k]=parsed.refs[k]; }); saveRefs(); }
@@ -2290,13 +2321,13 @@ function exportCSV(){
   download(`CDO-tasks_${stamp()}.csv`, '\ufeff'+csv, 'text/csv;charset=utf-8');
   toast('Spreadsheet downloaded');
 }
-async function resetData(){
-  if(!(await showConfirm('Reset to the original starting data? This replaces everything currently here.'))) return;
+function resetData(){
+  if(!confirm('Reset to the original starting data? This replaces everything currently here.')) return;
   TASKS=SEED.map(t=>({...t})); buildSelects(); buildDatalists(); save(); toast('Reset to original data');
 }
-async function clearAll(){
-  if(!(await showConfirm('Delete ALL tasks permanently? This cannot be undone. Make sure you downloaded a backup.'))) return;
-  if(!(await showConfirm('Really delete everything?'))) return;
+function clearAll(){
+  if(!confirm('Delete ALL tasks permanently? This cannot be undone. Make sure you downloaded a backup.')) return;
+  if(!confirm('Really delete everything?')) return;
   TASKS=[]; buildSelects(); buildDatalists(); save(); toast('All tasks deleted');
 }
 function renderBackupStats(){
@@ -2315,7 +2346,7 @@ function toast(msg,type){
 }
 const EDIT_KEY='cdo_task_editpw_v1';
 const EDIT_OFF_KEY='cdo_task_editlock_off_v1';
-const PROTECTED_TABS=['diary','spreadsheet','master','backup'];
+const PROTECTED_TABS=['diary','diaryboard','spreadsheet','master','backup'];
 let editorUnlocked=false, pendingTab=null, egMode='enter';
 function getEditPw(){ return hasStorage?localStorage.getItem(EDIT_KEY):null; }
 function editLockOff(){ return hasStorage && localStorage.getItem(EDIT_OFF_KEY)==='1'; }
@@ -2342,11 +2373,11 @@ function doActivate(v){
 function openEditGate(v){
   pendingTab=v;
   egMode = getEditPw() ? 'enter' : 'create';
-  const secName={diary:'the Diary',issues:'the Issue Register',spreadsheet:'the Spreadsheet',master:'the Master lists',backup:'the Backup tools'}[v]||'this section';
+  const secName={diary:'the Diary',diaryboard:'the Diary Board',issues:'the Issue Register',spreadsheet:'the Spreadsheet',master:'the Master lists',backup:'the Backup tools'}[v]||'this section';
   const title=document.getElementById('egTitle'), msg=document.getElementById('egMsg'), p2=document.getElementById('egPass2'), btn=document.getElementById('egBtn'), skip=document.getElementById('egSkip');
   if(egMode==='create'){
     title.textContent='🔒 Set editor password';
-    msg.innerHTML='Create a password to lock the <b>Spreadsheet, Master &amp; Backup</b> tabs. It will be required to edit them.';
+    msg.innerHTML='Create a password to lock the <b>Diary, Diary Board, Spreadsheet, Master &amp; Backup</b> tabs. It will be required to open them.';
     p2.style.display='block'; btn.textContent='Save & Open'; skip.style.display='block';
   }else{
     title.textContent='🔒 Editor access';
@@ -2377,20 +2408,20 @@ function submitEditGate(){
     else{ egErr('Incorrect editor password'); const el=document.getElementById('egPass'); el.value=''; el.focus(); }
   }
 }
-async function setEditorPassword(){
-  if(!hasStorage){ await showAlert('Storage is unavailable, so an editor password cannot be saved in this browser.'); return; }
+function setEditorPassword(){
+  if(!hasStorage){ alert('Storage is unavailable, so an editor password cannot be saved in this browser.'); return; }
   const cur=getEditPw();
-  if(cur){ const old=await showPrompt('Enter current editor password:',{isPassword:true}); if(old===null)return; if(pwHash(old)!==cur){ await showAlert('Incorrect current editor password.'); return; } }
-  const np=await showPrompt('New editor password (at least 3 characters):',{isPassword:true}); if(np===null)return; if(np.length<3){ await showAlert('Too short — use at least 3 characters.'); return; }
-  const np2=await showPrompt('Confirm editor password:',{isPassword:true}); if(np2===null)return; if(np!==np2){ await showAlert('Passwords do not match.'); return; }
+  if(cur){ const old=prompt('Enter current editor password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current editor password.'); return; } }
+  const np=prompt('New editor password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
+  const np2=prompt('Confirm editor password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
   localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY); editorUnlocked=true; toast('Editor password set');
-  await showAlert('Editor password set. Spreadsheet, Master and Backup now require it.');
+  alert('Editor password set. Spreadsheet, Master and Backup now require it.');
 }
-async function removeEditorPassword(){
+function removeEditorPassword(){
   const cur=getEditPw();
-  if(!cur && editLockOff()){ await showAlert('The editor lock is already off.'); return; }
-  if(cur){ const old=await showPrompt('Enter current editor password to turn the lock off:',{isPassword:true}); if(old===null)return; if(pwHash(old)!==cur){ await showAlert('Incorrect editor password.'); return; } }
-  if(!(await showConfirm('Turn OFF the editor lock? Anyone who can open the app will then be able to edit the Spreadsheet, Master and Backup tabs.'))) return;
+  if(!cur && editLockOff()){ alert('The editor lock is already off.'); return; }
+  if(cur){ const old=prompt('Enter current editor password to turn the lock off:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect editor password.'); return; } }
+  if(!confirm('Turn OFF the editor lock? Anyone who can open the app will then be able to edit the Spreadsheet, Master and Backup tabs.')) return;
   if(hasStorage){ localStorage.removeItem(EDIT_KEY); localStorage.setItem(EDIT_OFF_KEY,'1'); }
   editorUnlocked=true; toast('Editor lock turned off');
 }
@@ -2480,21 +2511,21 @@ function lkSubmit(){
 function lkUnlock(){ document.getElementById('lockscreen').style.display='none'; lkErr(''); document.getElementById('lkPass').value=''; document.getElementById('lkPass2').value=''; }
 ['lkPass','lkPass2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') lkSubmit(); }); });
 (function(){ ['egPass','egPass2'].forEach(id=>{ const eg=document.getElementById(id); if(eg) eg.addEventListener('keydown',e=>{ if(e.key==='Enter') submitEditGate(); }); }); const gate=document.getElementById('editGate'); if(gate) gate.addEventListener('click',e=>{ if(e.target.id==='editGate') closeEditGate(); }); })();
-async function changePassword(){
-  if(!hasStorage){ await showAlert('Storage is unavailable, so a password cannot be saved in this browser.'); return; }
+function changePassword(){
+  if(!hasStorage){ alert('Storage is unavailable, so a password cannot be saved in this browser.'); return; }
   const cur=getPw();
-  if(cur){ const old=await showPrompt('Enter current password:',{isPassword:true}); if(old===null)return; if(pwHash(old)!==cur){ await showAlert('Incorrect current password.'); return; } }
-  const np=await showPrompt('New password (at least 3 characters):',{isPassword:true}); if(np===null)return; if(np.length<3){ await showAlert('Too short — use at least 3 characters.'); return; }
-  const np2=await showPrompt('Confirm new password:',{isPassword:true}); if(np2===null)return; if(np!==np2){ await showAlert('Passwords do not match.'); return; }
-  localStorage.setItem(PW_KEY, pwHash(np)); toast('Password updated'); await showAlert('Password updated. It will be required next time you open the app.');
+  if(cur){ const old=prompt('Enter current password:'); if(old===null)return; if(pwHash(old)!==cur){ alert('Incorrect current password.'); return; } }
+  const np=prompt('New password (at least 3 characters):'); if(np===null)return; if(np.length<3){ alert('Too short — use at least 3 characters.'); return; }
+  const np2=prompt('Confirm new password:'); if(np2===null)return; if(np!==np2){ alert('Passwords do not match.'); return; }
+  localStorage.setItem(PW_KEY, pwHash(np)); toast('Password updated'); alert('Password updated. It will be required next time you open the app.');
 }
-async function removePassword(){
+function removePassword(){
   if(!hasStorage) return;
   const cur=getPw();
-  if(!cur){ await showAlert('No password is currently set.'); return; }
-  const old=await showPrompt('Enter current password to remove it:',{isPassword:true}); if(old===null)return;
-  if(pwHash(old)!==cur){ await showAlert('Incorrect password.'); return; }
-  if(!(await showConfirm('Remove the password? The app will open without one.'))) return;
+  if(!cur){ alert('No password is currently set.'); return; }
+  const old=prompt('Enter current password to remove it:'); if(old===null)return;
+  if(pwHash(old)!==cur){ alert('Incorrect password.'); return; }
+  if(!confirm('Remove the password? The app will open without one.')) return;
   localStorage.removeItem(PW_KEY); toast('Password removed');
 }
 
