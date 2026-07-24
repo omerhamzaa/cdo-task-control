@@ -1919,7 +1919,7 @@ async function requireAdmin(action){
   if(adminUnlocked) return true;
   const p=await askPrompt('Admin password required to '+(action||'do this')+':',{title:'Admin password required'});
   if(p===null) return false;
-  if(p!==ADMIN_PW_HARDCODED){ safeAlert('Incorrect admin password.'); return false; }
+  if(p!==EDIT_PW_HARDCODED){ safeAlert('Incorrect admin password.'); return false; }
   adminUnlocked=true;
   return true;
 }
@@ -2517,7 +2517,7 @@ function sha256(ascii){
 }
 const PW_KEY='cdo_task_pw_v1', PW_SALT='CDOvertical::';
 function pwHash(p){ return sha256(unescape(encodeURIComponent(PW_SALT+p))); }
-function getPw(){ return hasStorage?(localStorage.getItem(PW_KEY)||pwHash(EDIT_PW_HARDCODED)):pwHash(EDIT_PW_HARDCODED); }
+function getPw(){ return hasStorage?(localStorage.getItem(PW_KEY)||pwHash(ADMIN_PW_HARDCODED)):pwHash(ADMIN_PW_HARDCODED); }
 let lkMode='enter';
 function lkInit(){
   const ls=document.getElementById('lockscreen');
