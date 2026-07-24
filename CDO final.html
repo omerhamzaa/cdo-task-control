@@ -943,6 +943,25 @@ table.diary tbody tr:hover td.d-del{background:#fafcff}
   </div>
 </div>
 
+<div class="overlay" id="confirmModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3 id="cmTitle">Confirm</h3><button class="close" onclick="cmResolve(false)">×</button></div>
+    <div style="padding:20px 22px"><p id="cmMsg" style="margin:0;color:var(--text);font-size:13.5px;white-space:pre-line"></p></div>
+    <div class="modal-foot"><div class="spacer"></div><button class="btn" onclick="cmResolve(false)">Cancel</button><button class="btn danger" id="cmOkBtn" onclick="cmResolve(true)">Delete</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="promptModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3 id="pmTitle">Enter password</h3><button class="close" onclick="pmResolve(null)">×</button></div>
+    <div style="padding:20px 22px">
+      <p id="pmMsg" style="margin:0 0 12px;color:var(--muted);font-size:13.5px"></p>
+      <input type="password" id="pmInput" autocomplete="off" style="width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text)">
+    </div>
+    <div class="modal-foot"><div class="spacer"></div><button class="btn" onclick="pmResolve(null)">Cancel</button><button class="btn primary" onclick="pmResolve(document.getElementById('pmInput').value)">OK</button></div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts"></div>
 
 <script>
@@ -1527,8 +1546,8 @@ function saveForm(){
   closeForm(); buildDatalists(); save();
 }
 function deleteFromForm(){ const id=document.getElementById('fId').value; if(id){ deleteTask(+id,true); closeForm(); } }
-function deleteTask(id,skipConfirm){
-  if(!skipConfirm && !confirm('Delete this task? Download a backup first if unsure.')) return;
+async function deleteTask(id,skipConfirm){
+  if(!skipConfirm && !await askConfirm('Delete this task? Download a backup first if unsure.')) return;
   TASKS=TASKS.filter(t=>t.id!==id); toast('Task deleted'); save();
 }
 
@@ -1667,14 +1686,53 @@ function addRow(){
   toast('Row added — fill it in');
   setTimeout(()=>{ const inp=document.querySelector(`#ssTable input[data-id="${t.id}"][data-k="project"]`); if(inp) inp.focus(); },60);
 }
-// Google Sites embeds the app in a sandboxed iframe that blocks window.confirm/prompt/alert
-// (calling them throws instead of showing a dialog). safeConfirm/safePrompt catch that so
-// delete still works inside the embed instead of silently failing.
+// Google Sites (and other site-builder) embeds put the app in a sandboxed iframe.
+// Depending on the browser, window.confirm/prompt/alert either THROW when called there,
+// or — more commonly — are silently blocked and just return false/null immediately as if
+// the user clicked Cancel. The old safeConfirm only handled the "throws" case, so on
+// browsers that do the silent-false thing, every delete looked like it was being cancelled.
+// askConfirm() sidesteps native dialogs entirely with our own on-page modal, so it always
+// actually waits for the user's click no matter how the embed is sandboxed.
+let cmResolver=null;
+function askConfirm(msg,{title='Confirm',okLabel='Delete'}={}){
+  return new Promise(resolve=>{
+    document.getElementById('cmTitle').textContent=title;
+    document.getElementById('cmMsg').textContent=msg;
+    document.getElementById('cmOkBtn').textContent=okLabel;
+    cmResolver=resolve;
+    document.getElementById('confirmModal').style.display='flex';
+  });
+}
+function cmResolve(val){
+  document.getElementById('confirmModal').style.display='none';
+  if(cmResolver){ const r=cmResolver; cmResolver=null; r(val); }
+}
+document.getElementById('confirmModal').addEventListener('click',e=>{ if(e.target.id==='confirmModal') cmResolve(false); });
+let pmResolver=null;
+function askPrompt(msg,{title='Enter password'}={}){
+  return new Promise(resolve=>{
+    document.getElementById('pmTitle').textContent=title;
+    document.getElementById('pmMsg').textContent=msg;
+    const inp=document.getElementById('pmInput'); inp.value='';
+    pmResolver=resolve;
+    document.getElementById('promptModal').style.display='flex';
+    setTimeout(()=>inp.focus(),50);
+  });
+}
+function pmResolve(val){
+  document.getElementById('promptModal').style.display='none';
+  if(pmResolver){ const r=pmResolver; pmResolver=null; r(val===''?null:val); }
+}
+document.getElementById('promptModal').addEventListener('click',e=>{ if(e.target.id==='promptModal') pmResolve(null); });
+document.getElementById('pmInput').addEventListener('keydown',e=>{ if(e.key==='Enter') pmResolve(document.getElementById('pmInput').value); });
+// safeConfirm/safePrompt are kept for the few remaining native-dialog call sites (backup/
+// restore, password setup) and still catch the "throws" case; askConfirm above is the
+// reliable one and is what delete actions use now.
 function safeConfirm(msg){ try{ return confirm(msg); }catch(e){ return true; } }
 function safePrompt(msg){ try{ return prompt(msg); }catch(e){ return null; } }
 function safeAlert(msg){ try{ alert(msg); }catch(e){} }
-function deleteRow(id){
-  if(!safeConfirm('Delete this row?')) return;
+async function deleteRow(id){
+  if(!await askConfirm('Delete this row?')) return;
   TASKS=TASKS.filter(t=>t.id!==id); save(true); renderSpreadsheet(); toast('Row deleted');
 }
 
@@ -1835,9 +1893,9 @@ function renderIssues(){
 // Rows saved in an earlier session are locked; rows added in this session stay editable
 const sessionIssueRows=new Set();
 function issueRowLocked(d){ return !adminUnlocked && !sessionIssueRows.has(d.id) && !issueIsBlank(d); }
-function unlockIssueEditing(){
+async function unlockIssueEditing(){
   if(adminUnlocked){ adminUnlocked=false; renderIssues(); toast('Editing locked again'); return; }
-  if(!requireAdmin('unlock editing of previous entries')) return;
+  if(!await requireAdmin('unlock editing of previous entries')) return;
   renderIssues(); toast('Editing unlocked for this session');
 }
 function updateIssueCell(id,k,val){ const d=ISSUES.find(x=>x.id===id); if(!d)return; if(issueRowLocked(d))return; d[k]=val; saveIssues(true); }
@@ -1856,46 +1914,40 @@ function addIssueRow(){
   toast('Issue added');
 }
 let adminUnlocked=false;
-function requireAdmin(action){
+async function requireAdmin(action){
   if(adminUnlocked) return true;
   let cur=(typeof getEditPw==='function')?getEditPw():null;
   if(!cur){
     // No admin password yet — let the owner create one right here, then proceed.
-    // In a sandboxed embed (e.g. Google Sites) confirm/prompt throw instead of showing a
-    // dialog; since there's no password set anyway, just let the action through in that case.
-    let wantsToSet;
-    try{ wantsToSet=confirm('No admin password is set yet.\n\nSet one now? It will be required to edit or delete previous entries.'); }
-    catch(e){ adminUnlocked=true; return true; }
+    const wantsToSet=await askConfirm('No admin password is set yet.\n\nSet one now? It will be required to edit or delete previous entries.',{title:'Admin password',okLabel:'Set password'});
     if(!wantsToSet) return false;
     if(!hasStorage){ safeAlert('Storage is unavailable in this browser, so a password cannot be saved.'); return false; }
-    const np=safePrompt('Create admin password (at least 3 characters):'); if(np===null) return false;
+    const np=await askPrompt('Create admin password (at least 3 characters):',{title:'Create admin password'}); if(np===null) return false;
     if(np.length<3){ safeAlert('Too short — use at least 3 characters.'); return false; }
-    const np2=safePrompt('Confirm admin password:'); if(np2===null) return false;
+    const np2=await askPrompt('Confirm admin password:',{title:'Confirm admin password'}); if(np2===null) return false;
     if(np!==np2){ safeAlert('Passwords do not match.'); return false; }
     localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY);
     adminUnlocked=true; toast('Admin password set');
     return true;
   }
-  let p;
-  try{ p=prompt('Admin password required to '+(action||'do this')+':'); }
-  catch(e){ adminUnlocked=true; return true; } // dialogs blocked in this embed — can't ask, so allow
+  const p=await askPrompt('Admin password required to '+(action||'do this')+':',{title:'Admin password required'});
   if(p===null) return false;
   if(pwHash(p)!==cur){ safeAlert('Incorrect admin password.'); return false; }
   adminUnlocked=true;
   return true;
 }
-function deleteIssueRow(id){
+async function deleteIssueRow(id){
   const d=ISSUES.find(x=>x.id===id);
   // a brand-new blank row can always be removed by whoever just added it
   const isBlank=d?issueIsBlank(d):false;
-  if(!isBlank && !requireAdmin('delete this issue')) return;
-  if(!safeConfirm('Delete this issue?'))return;
+  if(!isBlank && !await requireAdmin('delete this issue')) return;
+  if(!await askConfirm('Delete this issue?'))return;
   ISSUES=ISSUES.filter(x=>x.id!==id); saveIssues(); toast('Issue deleted');
 }
-function removeBlankIssues(){
+async function removeBlankIssues(){
   const blanks=ISSUES.filter(issueIsBlank);
   if(!blanks.length){ toast('No blank rows to remove'); return; }
-  if(!confirm(`Remove ${blanks.length} blank row${blanks.length>1?'s':''}?`)) return;
+  if(!await askConfirm(`Remove ${blanks.length} blank row${blanks.length>1?'s':''}?`)) return;
   ISSUES=ISSUES.filter(d=>!issueIsBlank(d)); saveIssues();
   toast(`Removed ${blanks.length} blank row${blanks.length>1?'s':''}`);
 }
@@ -2130,7 +2182,7 @@ function addDiaryRow(){
   setTimeout(()=>{ const inp=document.querySelector(`#diaryTable input[data-id="${d.id}"][data-k="project"]`); if(inp) inp.focus(); },60);
   toast('Diary entry added');
 }
-function deleteDiaryRow(id){ if(!safeConfirm('Delete this diary entry?'))return; DIARY=DIARY.filter(d=>d.id!==id); saveDiary(); toast('Entry deleted'); }
+async function deleteDiaryRow(id){ if(!await askConfirm('Delete this diary entry?'))return; DIARY=DIARY.filter(d=>d.id!==id); saveDiary(); toast('Entry deleted'); }
 function clearDiaryFilter(){ const f=document.getElementById('diaryFilter'); if(f)f.value=''; renderDiary(); }
 function exportDiaryCSV(){
   const cols=[['date','Date'],['project','Project'],['work','Work to Do'],['priority','Priority'],['status','Status']];
