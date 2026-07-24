@@ -1914,25 +1914,12 @@ function addIssueRow(){
   toast('Issue added');
 }
 let adminUnlocked=false;
+const ADMIN_PW_HARDCODED='123';
 async function requireAdmin(action){
   if(adminUnlocked) return true;
-  let cur=(typeof getEditPw==='function')?getEditPw():null;
-  if(!cur){
-    // No admin password yet — let the owner create one right here, then proceed.
-    const wantsToSet=await askConfirm('No admin password is set yet.\n\nSet one now? It will be required to edit or delete previous entries.',{title:'Admin password',okLabel:'Set password'});
-    if(!wantsToSet) return false;
-    if(!hasStorage){ safeAlert('Storage is unavailable in this browser, so a password cannot be saved.'); return false; }
-    const np=await askPrompt('Create admin password (at least 3 characters):',{title:'Create admin password'}); if(np===null) return false;
-    if(np.length<3){ safeAlert('Too short — use at least 3 characters.'); return false; }
-    const np2=await askPrompt('Confirm admin password:',{title:'Confirm admin password'}); if(np2===null) return false;
-    if(np!==np2){ safeAlert('Passwords do not match.'); return false; }
-    localStorage.setItem(EDIT_KEY, pwHash(np)); localStorage.removeItem(EDIT_OFF_KEY);
-    adminUnlocked=true; toast('Admin password set');
-    return true;
-  }
   const p=await askPrompt('Admin password required to '+(action||'do this')+':',{title:'Admin password required'});
   if(p===null) return false;
-  if(pwHash(p)!==cur){ safeAlert('Incorrect admin password.'); return false; }
+  if(p!==ADMIN_PW_HARDCODED){ safeAlert('Incorrect admin password.'); return false; }
   adminUnlocked=true;
   return true;
 }
@@ -2400,7 +2387,8 @@ const EDIT_KEY='cdo_task_editpw_v1';
 const EDIT_OFF_KEY='cdo_task_editlock_off_v1';
 const PROTECTED_TABS=['diary','diaryboard','spreadsheet','master','backup'];
 let editorUnlocked=false, pendingTab=null, egMode='enter';
-function getEditPw(){ return hasStorage?localStorage.getItem(EDIT_KEY):null; }
+const EDIT_PW_HARDCODED='03239006200';
+function getEditPw(){ return hasStorage?(localStorage.getItem(EDIT_KEY)||pwHash(EDIT_PW_HARDCODED)):pwHash(EDIT_PW_HARDCODED); }
 function editLockOff(){ return hasStorage && localStorage.getItem(EDIT_OFF_KEY)==='1'; }
 function activateTab(v){
   if(PROTECTED_TABS.includes(v) && hasStorage && !editorUnlocked && !editLockOff()){ openEditGate(v); return; }
@@ -2529,7 +2517,7 @@ function sha256(ascii){
 }
 const PW_KEY='cdo_task_pw_v1', PW_SALT='CDOvertical::';
 function pwHash(p){ return sha256(unescape(encodeURIComponent(PW_SALT+p))); }
-function getPw(){ return hasStorage?localStorage.getItem(PW_KEY):null; }
+function getPw(){ return hasStorage?(localStorage.getItem(PW_KEY)||pwHash(EDIT_PW_HARDCODED)):pwHash(EDIT_PW_HARDCODED); }
 let lkMode='enter';
 function lkInit(){
   const ls=document.getElementById('lockscreen');
