@@ -1721,12 +1721,122 @@ function saveRefs(){ if(hasStorage){ try{ localStorage.setItem(REF_KEY, JSON.str
 const DIARY_KEY='cdo_diary_v1';
 let DIARY=[];
 function loadDiary(){ if(hasStorage){ const raw=localStorage.getItem(DIARY_KEY); if(raw){ try{ DIARY=JSON.parse(raw); return; }catch(e){} } } DIARY=[]; }
-function saveDiary(silent){ if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} } scheduleFileWrite(); if(!silent) renderDiary(); }
+function saveDiary(silent){ if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushDiaryToSheet(); if(!silent) renderDiary(); }
 
 const ISSUES_KEY='cdo_issues_v1';
 let ISSUES=[];
 function loadIssues(){ if(hasStorage){ const raw=localStorage.getItem(ISSUES_KEY); if(raw){ try{ ISSUES=JSON.parse(raw); return; }catch(e){} } } ISSUES=[]; }
-function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderIssues(); renderIssuesView(); } }
+function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushIssuesToSheet(); if(!silent){ renderIssues(); renderIssuesView(); } }
+
+/* ============ Database Sync (shared data for all users, via Google Sheet backend) ============ */
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbynHY6cmSWX1OoIOTMOy8nTLWf7nZEkBmA_Azl6scIFnXZSEUn4STYxTu2-U2SyzwGI/exec';
+function sheetSyncEnabled(){ return !!SHEET_API_URL && SHEET_API_URL.indexOf('PASTE_YOUR')===-1; }
+function setSyncStatus(state){
+  const el=document.getElementById('sheetSyncStatus'); if(!el) return;
+  if(state==='ok') el.textContent='Synced just now — shared with everyone on this sheet.';
+  else if(state==='syncing') el.textContent='Syncing…';
+  else if(state==='error') el.textContent='Sync failed — check your connection and try again.';
+  else el.textContent='Not connected — data is only in this browser.';
+}
+async function pullFromSheet(silent){
+  if(!sheetSyncEnabled()){ setSyncStatus('off'); return; }
+  if(!silent) setSyncStatus('syncing');
+  try{
+    const res = await fetch(SHEET_API_URL, {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.tasks)){
+      TASKS = data.tasks;
+      if(hasStorage){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(TASKS)); localStorage.setItem(META_KEY, new Date().toISOString()); }catch(e){} }
+      if(!silent) refreshAll();
+    }
+    setSyncStatus('ok');
+  }catch(e){ setSyncStatus('error'); if(TASKS.length===0) await pushToSheet(); }
+}
+async function pushToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({tasks: TASKS}) }); setSyncStatus('ok'); }catch(e){ setSyncStatus('error'); }
+}
+async function pullDiaryFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    const res = await fetch(SHEET_API_URL+'?type=diary', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.diary)){
+      DIARY = data.diary;
+      if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} }
+      if(!silent) renderDiary();
+    }
+  }catch(e){ if(DIARY.length===0) await pushDiaryToSheet(); }
+}
+async function pushDiaryToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'diary', diary: DIARY}) }); }catch(e){}
+}
+async function pullIssuesFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    const res = await fetch(SHEET_API_URL+'?type=issues', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.issues)){
+      ISSUES = data.issues;
+      if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} }
+      if(!silent){ renderIssues(); renderIssuesView(); }
+    }
+  }catch(e){ if(ISSUES.length===0) await pushIssuesToSheet(); }
+}
+async function pushIssuesToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'issues', issues: ISSUES}) }); }catch(e){}
+}
+async function pullMomFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    const res = await fetch(SHEET_API_URL+'?type=mom', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.mom)){
+      MOM = data.mom;
+      if(hasStorage){ try{ localStorage.setItem(MOM_KEY, JSON.stringify(MOM)); }catch(e){} }
+      if(!silent){ renderMom(); renderMomView(); }
+    }
+  }catch(e){ if(MOM.length===0) await pushMomToSheet(); }
+}
+async function pushMomToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'mom', mom: MOM}) }); }catch(e){}
+}
+async function pullCdoFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    const res = await fetch(SHEET_API_URL+'?type=cdo', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.cdo)){
+      CDOD = data.cdo;
+      if(hasStorage){ try{ localStorage.setItem(CDO_KEY, JSON.stringify(CDOD)); }catch(e){} }
+      if(!silent){ renderCdo(); renderCdoView(); }
+    }
+  }catch(e){ if(CDOD.length===0) await pushCdoToSheet(); }
+}
+async function pushCdoToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'cdo', cdo: CDOD}) }); }catch(e){}
+}
+async function pullPayFromSheet(silent){
+  if(!sheetSyncEnabled()) return;
+  try{
+    const res = await fetch(SHEET_API_URL+'?type=pay', {method:'GET'});
+    const data = await res.json();
+    if(data && Array.isArray(data.payments)){
+      PAYS = data.payments;
+      if(hasStorage){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(PAYS)); }catch(e){} }
+      if(!silent){ renderPay(); renderPayView(); }
+    }
+  }catch(e){ if(PAYS.length===0) await pushPayToSheet(); }
+}
+async function pushPayToSheet(){
+  if(!sheetSyncEnabled()) return;
+  try{ await fetch(SHEET_API_URL, { method:'POST', body: JSON.stringify({type:'pay', payments: PAYS}) }); }catch(e){}
+}
+function syncNow(){ pullFromSheet(false); pullDiaryFromSheet(false); pullIssuesFromSheet(false); pullMomFromSheet(false); pullCdoFromSheet(false); pullPayFromSheet(false); }
 
 /* ============ State ============ */
 let TASKS = [];
@@ -1752,6 +1862,7 @@ function save(silent){
   }
   updateSaveChip(now);
   scheduleFileWrite();
+  if(sheetSyncEnabled()) pushToSheet();
   if(!silent) refreshAll();
 }
 function updateSaveChip(now){
@@ -3958,7 +4069,7 @@ function hubGo(v){
 const MOM_KEY='cdo_mom_v1';
 let MOM=[];
 function loadMom(){ if(hasStorage){ const raw=localStorage.getItem(MOM_KEY); if(raw){ try{ MOM=JSON.parse(raw); return; }catch(e){} } } MOM=[]; }
-function saveMom(silent){ if(hasStorage){ try{ localStorage.setItem(MOM_KEY, JSON.stringify(MOM)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderMom(); renderMomView(); renderHome(); } }
+function saveMom(silent){ if(hasStorage){ try{ localStorage.setItem(MOM_KEY, JSON.stringify(MOM)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushMomToSheet(); if(!silent){ renderMom(); renderMomView(); renderHome(); } }
 function momNextId(){ return MOM.reduce((m,d)=>Math.max(m,d.id||0),0)+1; }
 const MOM_COLS=[
   {k:'date',       label:'Meeting Date',    type:'date',   w:114},
@@ -4533,7 +4644,7 @@ const CDO_NAME='Asad Moulla';
 const CDO_KEY='cdo_cdodiary_v1';
 let CDOD=[];
 function loadCdo(){ if(hasStorage){ const raw=localStorage.getItem(CDO_KEY); if(raw){ try{ CDOD=JSON.parse(raw); return; }catch(e){} } } CDOD=[]; }
-function saveCdo(silent){ if(hasStorage){ try{ localStorage.setItem(CDO_KEY, JSON.stringify(CDOD)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderCdo(); renderCdoView(); renderHome(); } }
+function saveCdo(silent){ if(hasStorage){ try{ localStorage.setItem(CDO_KEY, JSON.stringify(CDOD)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushCdoToSheet(); if(!silent){ renderCdo(); renderCdoView(); renderHome(); } }
 function cdoNextId(){ return CDOD.reduce((m,d)=>Math.max(m,d.id||0),0)+1; }
 const CDO_COLS=[
   {k:'date',    label:'Date',            type:'date',   w:126},
@@ -4737,7 +4848,7 @@ const PAY_KEY='cdo_payments_v1';
 let PAYS=[];
 function amtNum(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?0:n; }
 function loadPay(){ if(hasStorage){ const raw=localStorage.getItem(PAY_KEY); if(raw){ try{ PAYS=JSON.parse(raw); return; }catch(e){} } } PAYS=[]; }
-function savePay(silent){ if(hasStorage){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(PAYS)); }catch(e){} } scheduleFileWrite(); if(!silent){ renderPay(); renderPayView(); renderHome(); } }
+function savePay(silent){ if(hasStorage){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(PAYS)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushPayToSheet(); if(!silent){ renderPay(); renderPayView(); renderHome(); } }
 function payNextId(){ return PAYS.reduce((m,d)=>Math.max(m,d.id||0),0)+1; }
 if(!Array.isArray(REFS.payStatus)||!REFS.payStatus.length) REFS.payStatus=['Requested','Approved','On Hold','Paid','Rejected'];
 const PAY_COLS=[
@@ -5084,6 +5195,7 @@ setInterval(()=>loadWeather(true), 30*60*1000);
 doActivate('home');
 lkInit();
 fileInit();
+if(sheetSyncEnabled()){ syncNow(); setInterval(syncNow, 20000); }
 </script>
 </body>
 </html>
