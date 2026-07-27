@@ -1729,7 +1729,7 @@ function loadIssues(){ if(hasStorage){ const raw=localStorage.getItem(ISSUES_KEY
 function saveIssues(silent){ if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} } scheduleFileWrite(); if(sheetSyncEnabled()) pushIssuesToSheet(); if(!silent){ renderIssues(); renderIssuesView(); } }
 
 /* ============ Database Sync (shared data for all users, via Google Sheet backend) ============ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbynHY6cmSWX1OoIOTMOy8nTLWf7nZEkBmA_Azl6scIFnXZSEUn4STYxTu2-U2SyzwGI/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbya_AP-ywkxVW0DpQZclb1K00MjrhAmOruHZU1edC-AlD89IsGCRpIUG5WJVZ8tmj_p/exec';
 function sheetSyncEnabled(){ return !!SHEET_API_URL && SHEET_API_URL.indexOf('PASTE_YOUR')===-1; }
 function setSyncStatus(state){
   const el=document.getElementById('sheetSyncStatus'); if(!el) return;
@@ -1745,9 +1745,15 @@ async function pullFromSheet(silent){
     const res = await fetch(SHEET_API_URL, {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.tasks)){
-      TASKS = data.tasks;
-      if(hasStorage){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(TASKS)); localStorage.setItem(META_KEY, new Date().toISOString()); }catch(e){} }
-      if(!silent) refreshAll();
+      if(data.tasks.length===0 && TASKS.length>0){
+        // Safety guard: sheet came back empty but we already have local data —
+        // don't wipe it out, this is almost certainly a transient glitch.
+        setSyncStatus('error');
+      } else {
+        TASKS = data.tasks;
+        if(hasStorage){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(TASKS)); localStorage.setItem(META_KEY, new Date().toISOString()); }catch(e){} }
+        if(!silent) refreshAll();
+      }
     }
     setSyncStatus('ok');
   }catch(e){ setSyncStatus('error'); if(TASKS.length===0) await pushToSheet(); }
@@ -1762,9 +1768,13 @@ async function pullDiaryFromSheet(silent){
     const res = await fetch(SHEET_API_URL+'?type=diary', {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.diary)){
-      DIARY = data.diary;
-      if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} }
-      if(!silent) renderDiary();
+      if(data.diary.length===0 && DIARY.length>0){
+        // transient glitch guard, don't wipe local data
+      } else {
+        DIARY = data.diary;
+        if(hasStorage){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(DIARY)); }catch(e){} }
+        if(!silent) renderDiary();
+      }
     }
   }catch(e){ if(DIARY.length===0) await pushDiaryToSheet(); }
 }
@@ -1778,9 +1788,13 @@ async function pullIssuesFromSheet(silent){
     const res = await fetch(SHEET_API_URL+'?type=issues', {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.issues)){
-      ISSUES = data.issues;
-      if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} }
-      if(!silent){ renderIssues(); renderIssuesView(); }
+      if(data.issues.length===0 && ISSUES.length>0){
+        // transient glitch guard, don't wipe local data
+      } else {
+        ISSUES = data.issues;
+        if(hasStorage){ try{ localStorage.setItem(ISSUES_KEY, JSON.stringify(ISSUES)); }catch(e){} }
+        if(!silent){ renderIssues(); renderIssuesView(); }
+      }
     }
   }catch(e){ if(ISSUES.length===0) await pushIssuesToSheet(); }
 }
@@ -1794,9 +1808,13 @@ async function pullMomFromSheet(silent){
     const res = await fetch(SHEET_API_URL+'?type=mom', {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.mom)){
-      MOM = data.mom;
-      if(hasStorage){ try{ localStorage.setItem(MOM_KEY, JSON.stringify(MOM)); }catch(e){} }
-      if(!silent){ renderMom(); renderMomView(); }
+      if(data.mom.length===0 && MOM.length>0){
+        // transient glitch guard, don't wipe local data
+      } else {
+        MOM = data.mom;
+        if(hasStorage){ try{ localStorage.setItem(MOM_KEY, JSON.stringify(MOM)); }catch(e){} }
+        if(!silent){ renderMom(); renderMomView(); }
+      }
     }
   }catch(e){ if(MOM.length===0) await pushMomToSheet(); }
 }
@@ -1810,9 +1828,13 @@ async function pullCdoFromSheet(silent){
     const res = await fetch(SHEET_API_URL+'?type=cdo', {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.cdo)){
-      CDOD = data.cdo;
-      if(hasStorage){ try{ localStorage.setItem(CDO_KEY, JSON.stringify(CDOD)); }catch(e){} }
-      if(!silent){ renderCdo(); renderCdoView(); }
+      if(data.cdo.length===0 && CDOD.length>0){
+        // transient glitch guard, don't wipe local data
+      } else {
+        CDOD = data.cdo;
+        if(hasStorage){ try{ localStorage.setItem(CDO_KEY, JSON.stringify(CDOD)); }catch(e){} }
+        if(!silent){ renderCdo(); renderCdoView(); }
+      }
     }
   }catch(e){ if(CDOD.length===0) await pushCdoToSheet(); }
 }
@@ -1826,9 +1848,13 @@ async function pullPayFromSheet(silent){
     const res = await fetch(SHEET_API_URL+'?type=pay', {method:'GET'});
     const data = await res.json();
     if(data && Array.isArray(data.payments)){
-      PAYS = data.payments;
-      if(hasStorage){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(PAYS)); }catch(e){} }
-      if(!silent){ renderPay(); renderPayView(); }
+      if(data.payments.length===0 && PAYS.length>0){
+        // transient glitch guard, don't wipe local data
+      } else {
+        PAYS = data.payments;
+        if(hasStorage){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(PAYS)); }catch(e){} }
+        if(!silent){ renderPay(); renderPayView(); }
+      }
     }
   }catch(e){ if(PAYS.length===0) await pushPayToSheet(); }
 }
