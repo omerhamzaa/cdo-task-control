@@ -845,11 +845,24 @@ if(IN_IFRAME){
   function resetQ(){ Q.answers = []; Q.idx = 0; Q.replays = 0; Q.pendingAsk = false; }
 
   /* jo element ne flow shuru kiya tha usay yaad rakho, taake dobara chala sakein */
-  ['click','change'].forEach(function(type){
+  /* Jo element ne flow shuru kiya tha usay yaad rakho, taake dobara chala sakein.
+
+     'input' bhi zaroori hai: table cells locked row par typing karte hi
+     updatePayCell/updateDiaryCell chalate hain jo password maangte hain.
+     Sirf click/change sunne se wo raasta chhoot jata tha.
+
+     AHEM: dialog ke apne buttons (OK / Cancel) ko yahan bilkul nahi ginna.
+     Warna hota ye tha ke user ✕ dabata, dialog khulta, phir OK dabane par
+     Q.trigger badal kar OK button ban jata — aur replay ✕ ke bajaye OK ko
+     click karta. Nateeja: delete aur locked-row edit chup-chaap fail. */
+  ['click','change','input'].forEach(function(type){
     document.addEventListener(type, function(ev){
       if(Q.replaying) return;
+      if(Q.pendingAsk) return;                  /* dialog khula hai — uske clicks mat lo */
       if(Q.answers.length) return;              /* flow beech mein hai — mat badlo */
-      Q.trigger = { type: type, el: ev.target };
+      var t = ev.target;
+      if(t && t.closest && t.closest('.cdo-dlg-bg')) return;   /* dialog ke andar ka click */
+      Q.trigger = { type: type, el: t, oc: (t && t.getAttribute) ? t.getAttribute('onclick') : null };
     }, true);
   });
 
@@ -864,11 +877,23 @@ if(IN_IFRAME){
   function replay(){
     Q.replays++;
     var t = Q.trigger;
-    if(!t || !t.el || Q.replays > 15 || !document.contains(t.el)){ resetQ(); return; }
+    if(!t || !t.el || Q.replays > 15){ resetQ(); return; }
+
+    /* Table dobara render ho chuki ho to purana element DOM se ja chuka hota
+       hai. Us soorat mein wahi inline onclick wala naya element dhoondh lo. */
+    var el = t.el;
+    if(!document.contains(el)){
+      if(t.oc){
+        try{ el = document.querySelector('[onclick="' + t.oc.replace(/"/g, '\\"') + '"]'); }catch(e){ el = null; }
+      }else{ el = null; }
+      if(!el){ resetQ(); return; }
+      t.el = el;
+    }
+
     Q.idx = 0; Q.pendingAsk = false; Q.replaying = true;
     try{
-      if(t.type === 'click') t.el.click();
-      else t.el.dispatchEvent(new Event(t.type, { bubbles: true }));
+      if(t.type === 'click') el.click();
+      else el.dispatchEvent(new Event(t.type, { bubbles: true }));
     }catch(e){ /* ignore */ }
     Q.replaying = false;
     if(!Q.pendingAsk) resetQ();                 /* handler poora chal gaya */
@@ -976,6 +1001,26 @@ if(IN_IFRAME){
     return askThenAbort('prompt', msg, def);
   };
   window.CDO_DIALOG = openDialog;
+
+  /* Console mein cdoTestDialogs() chala kar tasdeeq kar sakte ho ke
+     iframe ke andar confirm/prompt ka replay theek chal raha hai. */
+  window.cdoTestDialogs = function(){
+    var btn = document.createElement('button');
+    btn.style.cssText = 'position:fixed;left:-9999px';
+    btn.setAttribute('onclick', 'void 0');
+    btn.onclick = function(){
+      var a = confirm('TEST 1 of 2 — press "Yes, continue".');
+      if(!a){ alert('Test cancelled.'); btn.remove(); return; }
+      var b = prompt('TEST 2 of 2 — type: hello');
+      if(b === null){ alert('Test cancelled.'); btn.remove(); return; }
+      alert(b === 'hello'
+        ? '✅ PASS — confirm and prompt both replay correctly.\nDelete and locked-row edit will work here.'
+        : '⚠ Got "' + b + '" instead of "hello" — but the replay itself worked.');
+      btn.remove();
+    };
+    document.body.appendChild(btn);
+    btn.click();
+  };
 }
 
 
