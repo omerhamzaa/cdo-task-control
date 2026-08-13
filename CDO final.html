@@ -14203,6 +14203,21 @@ function doPush(key){
     .catch(function(e){
       console.error('[cloud] push', key, e);
       pushing[key] = false;
+      var msg = String(e && e.message || e);
+      /* Asal wajah chhupao mat — warna banda samajhta rahega ke sab theek hai */
+      if(/row-level security|violates row-level/i.test(msg)){
+        setChip('Save blocked by database security', 'err');
+        if(!window.__cdoRlsWarned){
+          window.__cdoRlsWarned = true;
+          ask('alert',
+            'The database refused to save.\n\n' +
+            'Reason: a row-level security policy blocked the write — most often the ' +
+            'history trigger (cdo_snapshot) is missing SECURITY DEFINER.\n\n' +
+            'Re-run the setup SQL in Supabase, then press "Send all" in the cloud panel.\n\n' +
+            'Details:\n' + msg.slice(0, 300));
+        }
+        return;                       /* baar baar retry ka koi faida nahi */
+      }
       setChip('Save failed — retrying', 'err');
       setTimeout(function(){ doPush(key); }, 6000);
     });
